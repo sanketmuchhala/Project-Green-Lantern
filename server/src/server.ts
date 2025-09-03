@@ -28,6 +28,22 @@ const providers = {
   deepseek: deepseekProvider
 };
 
+// Auto-detect provider from model name
+function detectProvider(model: string): keyof typeof providers {
+  const modelLower = model.toLowerCase();
+  
+  if (modelLower.includes('claude') || modelLower.includes('anthropic')) {
+    return 'anthropic';
+  }
+  
+  if (modelLower.includes('deepseek') || modelLower.includes('r1')) {
+    return 'deepseek';
+  }
+  
+  // Default to OpenAI for GPT models and others
+  return 'openai';
+}
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -43,8 +59,14 @@ app.post('/v1/chat', async (req, res) => {
       return res.status(400).json({ error: 'Messages array is required' });
     }
     
-    if (!chatRequest.provider || !providers[chatRequest.provider]) {
-      return res.status(400).json({ error: 'Valid provider is required (openai, anthropic, deepseek)' });
+    // Auto-detect provider if set to 'auto'
+    let providerName = chatRequest.provider;
+    if (providerName === 'auto') {
+      providerName = detectProvider(chatRequest.model || '');
+    }
+    
+    if (!providerName || !providers[providerName]) {
+      return res.status(400).json({ error: 'Valid provider is required (openai, anthropic, deepseek, or auto)' });
     }
     
     if (!chatRequest.api_key) {
@@ -52,16 +74,18 @@ app.post('/v1/chat', async (req, res) => {
     }
     
     // Log request (without sensitive data)
-    console.log(`[${new Date().toISOString()}] Chat request: ${chatRequest.provider}/${chatRequest.model}, ${chatRequest.messages.length} messages`);
+    console.log(`[${new Date().toISOString()}] Chat request: ${providerName}/${chatRequest.model}, ${chatRequest.messages.length} messages`);
     
     // Get provider and make request
-    const provider = providers[chatRequest.provider];
+    const provider = providers[providerName];
     const response = await provider.chat(chatRequest);
     
     res.json(response);
     
   } catch (error: any) {
-    console.error('Chat error:', error.message);
+    console.error('Chat error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'Internal server error',
       details: error.message 
