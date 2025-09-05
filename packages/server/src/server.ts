@@ -2,12 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import { ChatRequest, WebSearchResult } from './types.js';
+import { ChatRequest, WebSearchResult } from '@app/types';
 import { openaiProvider } from './providers/openai.js';
 import { anthropicProvider } from './providers/anthropic.js';
 import { deepseekProvider } from './providers/deepseek.js';
 import { geminiProvider } from './providers/gemini.js';
 import { performWebSearch, extractSearchQuery, enhancePromptWithWebResults } from './services/webSearch.js';
+import { orchestrator } from './orchestrator/index.js';
 
 dotenv.config({ path: '.env.local' });
 
