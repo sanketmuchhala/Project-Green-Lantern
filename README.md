@@ -1,5 +1,8 @@
 # BYOK Copilot
 
+<img width="1680" height="1050" alt="Screenshot 2025-09-05 at 5 47 26 PM" src="https://github.com/user-attachments/assets/969f5b45-5e53-4fe5-b668-ddecf8ee1bc9" />
+
+
 A world-class, local-only, bring-your-own-key AI chat application that supports multiple providers with a beautiful dark interface.
 
 ## ✨ Features
