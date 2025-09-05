@@ -3,24 +3,24 @@
 @tailwind utilities;
 
 :root {
-  /* Dark theme by default - Full-bleed, opaque surfaces */
-  --background: #0a0a0a; /* neutral-950 */
-  --foreground: #fafafa; /* neutral-50 */
-  --muted: #171717; /* neutral-900 */
-  --muted-foreground: #a3a3a3; /* neutral-400 */
-  --popover: #171717; /* neutral-900 - fully opaque */
-  --popover-foreground: #fafafa;
-  --card: #171717; /* neutral-900 - fully opaque */
-  --card-foreground: #fafafa;
-  --border: #404040; /* neutral-700 */
-  --input: #262626; /* neutral-800 */
-  --primary: #3b82f6; /* blue-500 */
+  /* Dark theme by default */
+  --background: #0f0f0f;
+  --foreground: #ededed;
+  --muted: #1c1c1c;
+  --muted-foreground: #737373;
+  --popover: #0f0f0f;
+  --popover-foreground: #ededed;
+  --card: #0f0f0f;
+  --card-foreground: #ededed;
+  --border: #262626;
+  --input: #262626;
+  --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --secondary: #262626; /* neutral-800 */
-  --secondary-foreground: #fafafa;
-  --accent: #262626; /* neutral-800 */
-  --accent-foreground: #fafafa;
-  --destructive: #dc2626; /* red-600 */
+  --secondary: #262626;
+  --secondary-foreground: #ededed;
+  --accent: #262626;
+  --accent-foreground: #ededed;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --ring: #3b82f6;
 }

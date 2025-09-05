@@ -25,27 +25,8 @@ export const openaiProvider: ProviderAdapter = {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      
-      if (response.status === 401 || response.status === 403) {
-        throw { code: 'AUTH', provider: 'openai', message: 'Invalid or missing API key for OpenAI' };
-      }
-      
-      if (response.status === 429) {
-        throw { code: 'RATE_LIMIT', provider: 'openai', message: 'Rate limited by OpenAI API' };
-      }
-      
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.error?.message) {
-          errorMessage += ` - ${errorData.error.message}`;
-        }
-      } catch (e) {
-        errorMessage += ` - ${errorText}`;
-      }
-      
-      throw { code: 'HTTP', status: response.status, provider: 'openai', message: errorMessage };
+      const error = await response.text();
+      throw new Error(`OpenAI API error: ${response.status} ${error}`);
     }
 
     const data = await response.json();

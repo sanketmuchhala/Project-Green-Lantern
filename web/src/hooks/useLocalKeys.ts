@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import useChat from '../state/chatStore';
+import { Provider } from '../lib/db';
 
+// For backward compatibility with existing components
 export interface ApiKeys {
-  modelName: string;
   apiKey: string;
+  modelName: string;
 }
 
 export interface AppSettings {
@@ -10,107 +13,69 @@ export interface AppSettings {
   mode: 'direct' | 'research' | 'coach';
   temperature: number;
   max_tokens: number;
-  selectedProvider: string;
-  selectedModel: string;
+  selectedProvider: Provider;
 }
 
-const DEFAULT_SETTINGS: AppSettings = {
-  web_enabled: false,
-  mode: 'direct',
-  temperature: 0.7,
-  max_tokens: 4000,
-  selectedProvider: 'openai',
-  selectedModel: 'gpt-4o-mini'
-};
-
-const STORAGE_KEYS = {
-  API_KEYS: 'byok-api-keys',
-  SETTINGS: 'byok-settings'
-};
-
 export const useLocalKeys = () => {
-  const [apiKeys, setApiKeys] = useState<ApiKeys>({
-    modelName: '',
-    apiKey: ''
-  });
-
-  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
-
+  const { settings, saveSettings, getApiKey, setApiKey, getCurrentProvider, loadSettings } = useChat();
+  
+  // Load settings on mount
   useEffect(() => {
-    try {
-      const savedKeys = localStorage.getItem(STORAGE_KEYS.API_KEYS);
-      const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-      
-      if (savedKeys) {
-        const parsedKeys = JSON.parse(savedKeys);
-        setApiKeys(parsedKeys);
-      }
-      
-      if (savedSettings) {
-        const parsedSettings = JSON.parse(savedSettings);
-        setSettings({ ...DEFAULT_SETTINGS, ...parsedSettings });
-      }
-    } catch (error) {
-      console.error('Error loading saved data:', error);
-    }
-  }, []);
+    loadSettings();
+  }, [loadSettings]);
 
+  // For backward compatibility - convert new format to old format
+  const apiKeys: ApiKeys = {
+    apiKey: settings ? getApiKey(getCurrentProvider()) : '',
+    modelName: '' // Will be populated by model selection in settings
+  };
+  
   const updateApiKeys = (newKeys: ApiKeys) => {
-    setApiKeys(newKeys);
-    
-    try {
-      localStorage.setItem(STORAGE_KEYS.API_KEYS, JSON.stringify(newKeys));
-    } catch (error) {
-      console.error('Error saving API keys:', error);
+    if (settings) {
+      setApiKey(getCurrentProvider(), newKeys.apiKey);
     }
   };
-
-  const updateSettings = (newSettings: Partial<AppSettings>) => {
-    const updated = { ...settings, ...newSettings };
-    setSettings(updated);
-    
-    try {
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
-    } catch (error) {
-      console.error('Error saving settings:', error);
+  
+  const updateSettings = (partial: Partial<AppSettings>) => {
+    if (settings) {
+      saveSettings(partial);
     }
   };
-
-  const getApiKey = (): string => {
-    return apiKeys.apiKey;
-  };
-
+  
   const maskKey = (key: string): string => {
     if (!key) return '';
     if (key.length <= 8) return '••••••••';
     return key.slice(0, 4) + '••••••••' + key.slice(-4);
   };
-
+  
   const hasValidKey = (): boolean => {
-    return apiKeys.apiKey.length > 0;
+    const key = getApiKey(getCurrentProvider());
+    return key && key.length > 10;
   };
-
-  const clearAllData = () => {
-    setApiKeys({
-      modelName: '',
-      apiKey: ''
-    });
-    setSettings(DEFAULT_SETTINGS);
-    
-    try {
-      localStorage.removeItem(STORAGE_KEYS.API_KEYS);
-      localStorage.removeItem(STORAGE_KEYS.SETTINGS);
-    } catch (error) {
-      console.error('Error clearing data:', error);
-    }
+  
+  const clearAllData = async () => {
+    // This will be handled by clearing the IndexedDB and localStorage
+    localStorage.clear();
+    window.location.reload();
   };
-
+  
   return {
     apiKeys,
-    settings,
+    settings: settings ? {
+      mode: settings.mode,
+      temperature: settings.temperature,
+      max_tokens: settings.max_tokens,
+      web_enabled: settings.web_enabled,
+      selectedProvider: settings.selectedProvider
+    } : {
+      mode: 'direct' as const,
+      temperature: 0.7,
+      max_tokens: 4000,
+      web_enabled: false,
+      selectedProvider: 'openai' as Provider
+    },
     updateApiKeys,
     updateSettings,
-    getApiKey,
     maskKey,
     hasValidKey,
     clearAllData

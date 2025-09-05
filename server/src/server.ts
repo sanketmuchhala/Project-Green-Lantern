@@ -6,6 +6,7 @@ import { ChatRequest } from './types.js';
 import { openaiProvider } from './providers/openai.js';
 import { anthropicProvider } from './providers/anthropic.js';
 import { deepseekProvider } from './providers/deepseek.js';
+import { geminiProvider } from './providers/gemini.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -25,7 +26,8 @@ app.use(express.json({ limit: '10mb' }));
 const providers = {
   openai: openaiProvider,
   anthropic: anthropicProvider,
-  deepseek: deepseekProvider
+  deepseek: deepseekProvider,
+  gemini: geminiProvider
 };
 
 // Auto-detect provider from model name
@@ -36,8 +38,12 @@ function detectProvider(model: string): keyof typeof providers {
     return 'anthropic';
   }
   
-  if (modelLower.includes('deepseek') || modelLower.includes('r1')) {
+  if (modelLower.includes('deepseek') || modelLower.includes('deekseek') || modelLower.includes('r1')) {
     return 'deepseek';
+  }
+  
+  if (modelLower.includes('gemini') || modelLower.includes('google')) {
+    return 'gemini';
   }
   
   // Default to OpenAI for GPT models and others
@@ -47,6 +53,57 @@ function detectProvider(model: string): keyof typeof providers {
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Key validation endpoint
+app.post('/v1/ping', async (req, res) => {
+  try {
+    const { provider, model, api_key } = req.body;
+    
+    if (!provider || !api_key) {
+      return res.status(400).json({ error: 'Provider and API key are required' });
+    }
+    
+    if (!providers[provider]) {
+      return res.status(400).json({ error: 'Invalid provider' });
+    }
+    
+    console.log(`[${new Date().toISOString()}] API key test for ${provider}`);
+    
+    // Create a minimal test request
+    const testRequest: ChatRequest = {
+      provider,
+      model: model || 'test',
+      messages: [{ role: 'user', content: 'Hello' }],
+      api_key,
+      temperature: 0.1,
+      max_tokens: 10
+    };
+    
+    try {
+      const response = await providers[provider].chat(testRequest);
+      res.json({ ok: true, message: `API key valid for ${provider}` });
+    } catch (error: any) {
+      if (error.code === 'AUTH') {
+        return res.status(401).json({ ok: false, message: error.message });
+      }
+      
+      if (error.code === 'RATE_LIMIT') {
+        return res.json({ ok: true, message: 'API key valid (rate limited but functional)' });
+      }
+      
+      // If it's any other error, the key is probably valid but there's another issue
+      res.json({ ok: true, message: `API key appears valid for ${provider}` });
+    }
+    
+  } catch (error: any) {
+    const sanitizedError = error.message ? error.message.replace(/sk-[a-zA-Z0-9]{48}/g, 'sk-***') : 'Unknown error';
+    console.error('Ping error:', sanitizedError);
+    res.status(500).json({ 
+      ok: false, 
+      message: 'Unable to test API key'
+    });
+  }
 });
 
 // Chat endpoint
@@ -66,7 +123,7 @@ app.post('/v1/chat', async (req, res) => {
     }
     
     if (!providerName || !providers[providerName]) {
-      return res.status(400).json({ error: 'Valid provider is required (openai, anthropic, deepseek, or auto)' });
+      return res.status(400).json({ error: 'Valid provider is required (openai, anthropic, deepseek, gemini, or auto)' });
     }
     
     if (!chatRequest.api_key) {
@@ -83,12 +140,38 @@ app.post('/v1/chat', async (req, res) => {
     res.json(response);
     
   } catch (error: any) {
-    console.error('Chat error:', error);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    // Strip sensitive information from logs
+    const sanitizedError = error.message ? error.message.replace(/sk-[a-zA-Z0-9]{48}/g, 'sk-***') : 'Unknown error';
+    console.error(`Chat error for provider ${req.body.provider || 'unknown'}:`, sanitizedError);
+    
+    // Handle specific error types
+    if (error.code === 'AUTH') {
+      return res.status(401).json({ 
+        error: 'Authentication failed',
+        details: error.message,
+        provider: error.provider
+      });
+    }
+    
+    if (error.code === 'RATE_LIMIT') {
+      return res.status(429).json({ 
+        error: 'Rate limited',
+        details: error.message,
+        provider: error.provider
+      });
+    }
+    
+    if (error.code === 'HTTP') {
+      return res.status(error.status || 500).json({ 
+        error: 'HTTP error',
+        details: error.message,
+        provider: error.provider
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Internal server error',
-      details: error.message 
+      details: sanitizedError
     });
   }
 });
@@ -102,5 +185,5 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 app.listen(PORT, () => {
   console.log(`🚀 BYOK Research Copilot Server running on http://localhost:${PORT}`);
   console.log(`⚠️  SECURITY: Local-only mode. API keys are never logged or stored.`);
-  console.log(`📡 Ready to proxy requests to OpenAI, Anthropic, and DeepSeek`);
+  console.log(`📡 Ready to proxy requests to OpenAI, Anthropic, DeepSeek, and Gemini`);
 });

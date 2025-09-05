@@ -6,7 +6,8 @@ export const deepseekProvider: ProviderAdapter = {
   async chat(request: ChatRequest): Promise<ChatResponse> {
     const { messages, model, temperature = 0.7, max_tokens = 4000, api_key } = request;
     
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    const baseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
+    const response = await fetch(`${baseUrl}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,8 +26,27 @@ export const deepseekProvider: ProviderAdapter = {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`DeepSeek API error: ${response.status} ${error}`);
+      const errorText = await response.text();
+      
+      if (response.status === 401 || response.status === 403) {
+        throw { code: 'AUTH', provider: 'deepseek', message: 'Invalid or missing API key for DeepSeek' };
+      }
+      
+      if (response.status === 429) {
+        throw { code: 'RATE_LIMIT', provider: 'deepseek', message: 'Rate limited by DeepSeek API' };
+      }
+      
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error?.message) {
+          errorMessage += ` - ${errorData.error.message}`;
+        }
+      } catch (e) {
+        errorMessage += ` - ${errorText}`;
+      }
+      
+      throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: errorMessage };
     }
 
     const data = await response.json();

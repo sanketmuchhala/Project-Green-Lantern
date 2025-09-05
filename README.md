@@ -1,188 +1,184 @@
-# BYOK Research Copilot
+# BYOK Copilot
 
-A **local-only** AI research assistant where you bring your own API keys. Secure, private, and never pushes to remote repositories.
+A world-class, local-only, bring-your-own-key AI chat application that supports multiple providers with a beautiful dark interface.
 
-## 🔐 Security Features
+## ✨ Features
 
-- **Local-only**: Git push is completely disabled via pre-push hook
-- **No remote storage**: API keys stored only in your browser's localStorage
-- **Key masking**: API keys are never logged or displayed in plain text
-- **Runtime protection**: Server strips sensitive data from all logs
+- **🔒 Local-Only & Secure**: API keys never leave your browser. Zero telemetry, zero tracking.
+- **🌐 Multi-Provider Support**: OpenAI, Anthropic (Claude), Google Gemini, and DeepSeek
+- **💾 Persistent Conversations**: Chat history stored locally with IndexedDB
+- **🎨 Beautiful Dark Theme**: Full-bleed, opaque surfaces designed for extended use
+- **⌨️ Keyboard Shortcuts**: Cmd+N (new chat), Cmd+K (settings), Escape (close modals)
+- **🔧 Dynamic Configuration**: Per-provider API keys and model selection
+- **✅ Key Validation**: Test your API keys before using them
+- **📝 Conversation Management**: Rename, delete, and organize your chats
+- **🚫 Git-Safe**: Push protection to prevent accidental key exposure
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
-```bash
-# Install dependencies for both server and web
-cd server && npm install
-cd ../web && npm install
-```
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### 2. Start Development Servers
+2. **Start development**
+   ```bash
+   npm run dev
+   ```
+
+3. **Open your browser**
+   - Web app: http://localhost:5173
+   - Server: http://localhost:5174
+
+4. **Configure API keys**
+   - Press `Cmd+K` or click Settings
+   - Select your provider and add your API key
+   - Test the key to verify it works
+
+5. **Start chatting!**
+   - Press `Cmd+N` for a new conversation
+   - Your chats are automatically saved
+
+## 🔑 Supported Providers
+
+| Provider | Models | API Key Format | Get Key |
+|----------|--------|----------------|---------|
+| **OpenAI** | gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-3.5-turbo | `sk-...` | [Platform](https://platform.openai.com/api-keys) |
+| **Anthropic** | claude-3-5-sonnet, claude-3-5-haiku, claude-3-opus | `sk-ant-...` | [Console](https://console.anthropic.com/) |
+| **Google Gemini** | gemini-1.5-pro, gemini-1.5-flash, gemini-1.0-pro | API key | [AI Studio](https://aistudio.google.com/) |
+| **DeepSeek** | deepseek-chat, deepseek-coder, deepseek-reasoner | `sk-...` | [Platform](https://platform.deepseek.com/) |
+
+## ⌨️ Keyboard Shortcuts
+
+- **`Cmd+N`** / **`Ctrl+N`**: New chat
+- **`Cmd+K`** / **`Ctrl+K`**: Open settings  
+- **`Escape`**: Close modal
+- **`Enter`**: Send message
+- **`Shift+Enter`**: New line in message
+
+## 🏗️ Architecture
+
+### Frontend (`/web`)
+- **React** + **TypeScript** + **Vite**
+- **Tailwind CSS** for styling
+- **Zustand** for state management  
+- **Dexie** for IndexedDB persistence
+- **Dark theme by default** with opaque surfaces
+
+### Backend (`/server`)
+- **Express.js** API proxy server
+- **Provider adapters** for each AI service
+- **Security middleware** (helmet, CORS)
+- **Error handling** with sanitized logging
+
+### Data Layer
+- **IndexedDB** with schema versioning
+- **Migration** from localStorage (if detected)
+- **Conversation** and **Settings** tables
+- **Per-provider API key storage**
+
+## 🛡️ Security
+
+- **Local storage only**: All data stays in your browser
+- **API key masking**: Keys are hidden in the UI
+- **No server persistence**: Keys never touch the filesystem
+- **Sanitized logging**: Keys are stripped from error logs
+- **Git protection**: Push disabled to prevent key leaks
+- **HTTPS enforcement**: All provider API calls use HTTPS
+
+## 🧪 Development
+
 ```bash
-# Option 1: Run both servers from root (requires concurrently)
-npm install -g concurrently
+# Install dependencies
+npm install
+
+# Run development (web + server concurrently)
 npm run dev
 
-# Option 2: Use the dev script
-chmod +x scripts/dev.sh
-./scripts/dev.sh
+# Build production bundles  
+npm run build
 
-# Option 3: Manual (run in separate terminals)
-cd server && npm run dev    # Terminal 1 (Port 5174)
-cd web && npm run dev       # Terminal 2 (Port 5173)
-```
+# Start production server
+npm start
 
-### 3. Configure Your API Keys
-1. Open http://localhost:5173
-2. Click "Configure API Key" or "Keys & Settings"
-3. Paste your API keys:
-   - **OpenAI**: `sk-...` from https://platform.openai.com/api-keys
-   - **Anthropic**: `sk-ant-...` from https://console.anthropic.com/
-   - **DeepSeek**: `sk-...` from https://platform.deepseek.com/
-
-### 4. Choose Your Mode
-- **Direct**: Standard chat interface
-- **Research**: Generates research plans and citations (stubbed)
-- **Coach**: Optimizes prompts and asks clarifying questions
-
-## 🎯 Features
-
-### Chat Interface
-- **Shift+Enter**: New line in message
-- **Enter**: Send message
-- **Auto-save**: Chat history preserved locally
-- **Model selection**: Switch between providers and models
-
-### Prompting Modes
-
-#### Research Mode
-Provides structured research with:
-- **Plan** section outlining research approach
-- Comprehensive synthesis from multiple perspectives
-- **Citations** section (currently stubbed with example sources)
-
-#### Prompt Coach Mode
-Helps optimize vague requests by generating:
-- **Optimized Prompt** blocks with Task, Context, Constraints, etc.
-- Focused clarifying questions when needed
-- Prompt engineering guidance
-
-#### Direct Mode
-Standard conversational chat without special formatting.
-
-### Settings & Security
-- **API Key Management**: Masked display (••••), never logged
-- **Model Router**: Support for OpenAI, Anthropic, and DeepSeek
-- **Temperature Control**: 0.0 - 2.0 range
-- **Token Limits**: Configurable max tokens per request
-- **Web Search Toggle**: (Currently stubbed for future implementation)
-
-## 📁 Project Structure
-
-```
-BYok/
-├── server/          # Express API proxy (Port 5174)
-│   ├── src/
-│   │   ├── server.ts        # Main server with /v1/chat endpoint
-│   │   ├── types.ts         # TypeScript interfaces
-│   │   └── providers/       # AI provider adapters
-│   │       ├── openai.ts
-│   │       ├── anthropic.ts
-│   │       └── deepseek.ts
-│   └── env.sample   # Environment template
-│
-├── web/            # React frontend (Port 5173)
-│   └── src/
-│       ├── components/      # UI components
-│       ├── hooks/          # React hooks for state
-│       └── copilotSpec.ts  # System prompts & behavior
-│
-├── scripts/dev.sh  # Development startup script
-└── .git/hooks/pre-push     # Blocks all git push operations
-```
-
-## 🛡️ Security Guarantees
-
-### What's Protected
-- ✅ API keys never leave your machine except to AI providers
-- ✅ No server-side storage of keys or conversations  
-- ✅ Git push completely disabled (try it - it will fail!)
-- ✅ Keys masked in UI and redacted from logs
-- ✅ Local-only operation with no telemetry
-
-### Warning Signs to Rotate Keys
-- If you see your key in plain text anywhere
-- If you accidentally paste a key in chat (the app will warn you)
-- If you commit this repo anywhere (shouldn't happen due to push blocking)
-
-## 💻 Development
-
-### Available Commands
-
-```bash
-# Development (auto-reload)
-npm run dev          # Both server and web
-cd server && npm run dev    # Server only  
-cd web && npm run dev       # Web only
-
-# Production build
-npm run build        # Both packages
-cd server && npm run build  # Server only
-cd web && npm run build     # Web only
-
-# Production start (after build)
-npm start           # Server only (serve built web from server)
-
-# Clean all builds
+# Clean build artifacts
 npm run clean
 ```
 
-### Adding New Providers
-
-1. Create adapter in `server/src/providers/newprovider.ts`:
-```typescript
-export const newProviderAdapter: ProviderAdapter = {
-  name: 'NewProvider',
-  async chat(request: ChatRequest): Promise<ChatResponse> {
-    // Implementation
-  }
-};
+### Project Structure
+```
+├── web/                 # React frontend
+│   ├── src/
+│   │   ├── components/  # UI components
+│   │   ├── state/       # Zustand store
+│   │   ├── lib/         # Database & utilities
+│   │   └── constants/   # Models & providers
+├── server/              # Express backend
+│   ├── src/
+│   │   ├── providers/   # AI service adapters
+│   │   └── types.ts     # TypeScript definitions
+└── package.json         # Workspace root
 ```
 
-2. Register in `server/src/server.ts`:
-```typescript
-const providers = {
-  // existing providers...
-  newprovider: newProviderAdapter
-};
+## 🔧 Configuration
+
+### Environment Variables (Optional)
+Create `server/.env.local`:
+```bash
+# Custom API endpoints (optional)
+OPENAI_BASE_URL=https://api.openai.com/v1
+ANTHROPIC_BASE_URL=https://api.anthropic.com/v1
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+
+# Anthropic version
+ANTHROPIC_VERSION=2023-06-01
+
+# Server port
+PORT=5174
 ```
 
-3. Update `web/src/copilotSpec.ts`:
-```typescript
-export const MODELS = {
-  // existing models...
-  newprovider: [
-    { id: 'model-id', name: 'Model Name', maxTokens: 4000 }
-  ]
-};
-```
+### Settings Storage
+All settings are stored locally in IndexedDB:
+- Per-provider API keys
+- Selected provider and model
+- Temperature and max tokens
+- Conversation history
 
-## 🤝 Contributing
+## 🐛 Troubleshooting
 
-This is a local-only tool - no remote contributions by design! However, you can:
+### API Key Issues
+- ❌ **401/403 errors**: Invalid API key for the selected provider
+- ⏱️ **429 errors**: Rate limited - wait and retry
+- 🔧 **Test failed**: Use "Test Key" button to diagnose
 
-1. Fork the original repo (before push-blocking)
-2. Make changes locally  
-3. Share your modifications via other means (files, patches, etc.)
+### Connection Issues  
+- 🌐 Check that both web (5173) and server (5174) are running
+- 🔒 Verify CORS allows localhost connections
+- 📶 Test your network connection
 
-## ⚠️ Important Reminders
+### Storage Issues
+- 🗑️ Use "Clear All Data" in settings to reset
+- 🔍 Check browser IndexedDB in DevTools
+- 🔄 Try refreshing the page
 
-- **NEVER** add this repo to a remote after configuration
-- **NEVER** commit API keys (they're in .gitignore, but be careful)
-- **ALWAYS** rotate keys if they're accidentally exposed
-- **REMEMBER** this is local-only by design - push is permanently disabled
+## 📋 Manual QA Checklist
+
+- [ ] Dark theme loads by default
+- [ ] API key modal is completely opaque (not transparent)  
+- [ ] New Chat creates unique conversations with proper IDs
+- [ ] Chat history persists across browser reloads
+- [ ] Conversation rename and delete work correctly
+- [ ] Provider switching updates model list and key field
+- [ ] Invalid API keys show provider-specific error messages
+- [ ] No API keys appear in browser console logs
+- [ ] All keyboard shortcuts work as expected
+- [ ] Test Key validates correctly for each provider
+
+## 📄 License
+
+MIT License - Use at your own risk.
 
 ---
 
-**🚫 PUSH DISABLED**: This repository has git push permanently disabled for security. This is intentional and protects your API keys.
+**🔐 Security Reminder**: Keep your API keys secure and never commit them to version control!
