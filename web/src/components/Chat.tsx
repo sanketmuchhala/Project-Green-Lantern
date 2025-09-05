@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Settings, Plus, ChevronDown } from 'lucide-react';
+import { Send, Loader2, Settings, Plus, ChevronDown, Globe, Brain } from 'lucide-react';
 import { Message } from './Message';
 import useChat from '../state/chatStore';
 import { sanitizeDisplayText } from '../lib/stripEmojis';
@@ -15,6 +15,8 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const [showProviderDropdown, setShowProviderDropdown] = useState(false);
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [reasoningEnabled, setReasoningEnabled] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -114,17 +116,21 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
         },
         body: JSON.stringify({
           messages: [
+            // Send entire conversation history for full context awareness
             ...conversation.messages.map(msg => ({
               role: msg.role,
-              content: msg.content
+              content: msg.content,
+              timestamp: msg.createdAt
             })),
-            { role: 'user', content: currentInput }
+            { role: 'user', content: currentInput, timestamp: Date.now() }
           ],
           provider: conversationProvider,
           model: conversation.model,
           api_key: currentApiKey,
           temperature: conversation.settings.temperature,
-          max_tokens: conversation.settings.max_tokens
+          max_tokens: conversation.settings.max_tokens,
+          web_search: webSearchEnabled,
+          show_reasoning: reasoningEnabled
         })
       });
 
@@ -135,8 +141,11 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
 
       const data = await response.json();
       
-      // Add assistant message
-      await addMessage('assistant', data.message.content);
+      // Add assistant message with web search metadata and reasoning
+      await addMessage('assistant', data.message.content, {
+        webSearchResults: data.webSearchResults,
+        reasoning: data.reasoning
+      });
       
     } catch (error: any) {
       console.error('Chat error:', error);
@@ -306,7 +315,8 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
                   role: message.role,
                   content: message.content,
                   timestamp: message.createdAt,
-                  id: message.id
+                  id: message.id,
+                  metadata: message.metadata
                 }} />
               ))}
               
@@ -338,29 +348,72 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex gap-3">
-              <div className="flex-1 relative">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={`Message ${conversationProvider}...`}
-                  className="w-full p-3 pr-12 bg-neutral-800 text-white border border-neutral-700 rounded-lg resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  rows={1}
-                  disabled={isLoading}
-                />
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {/* Advanced Features Toggles */}
+              <div className="flex items-center gap-3 flex-wrap">
                 <button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-neutral-400 hover:text-white disabled:text-neutral-600 transition-colors"
+                  type="button"
+                  onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    webSearchEnabled
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700'
+                  }`}
                 >
-                  {isLoading ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Send size={18} />
-                  )}
+                  <Globe size={16} />
+                  Internet Access
                 </button>
+                
+                <button
+                  type="button"
+                  onClick={() => setReasoningEnabled(!reasoningEnabled)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                    reasoningEnabled
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700'
+                  }`}
+                >
+                  <Brain size={16} />
+                  Show Reasoning
+                </button>
+                
+                {(webSearchEnabled || reasoningEnabled) && (
+                  <span className="text-xs text-neutral-400">
+                    {webSearchEnabled && reasoningEnabled 
+                      ? 'Web search + reasoning enabled' 
+                      : webSearchEnabled 
+                        ? 'Will search the web for current information'
+                        : 'Will show AI thought process'
+                    }
+                  </span>
+                )}
+              </div>
+              
+              {/* Message Input */}
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={`Message ${conversationProvider}${webSearchEnabled || reasoningEnabled ? ' (' : ''}${webSearchEnabled ? 'web search' : ''}${webSearchEnabled && reasoningEnabled ? ' + ' : ''}${reasoningEnabled ? 'reasoning' : ''}${webSearchEnabled || reasoningEnabled ? ')' : ''}...`}
+                    className="w-full p-3 pr-12 bg-neutral-800 text-white border border-neutral-700 rounded-lg resize-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    rows={1}
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-neutral-400 hover:text-white disabled:text-neutral-600 transition-colors"
+                  >
+                    {isLoading ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <Send size={18} />
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
           )}

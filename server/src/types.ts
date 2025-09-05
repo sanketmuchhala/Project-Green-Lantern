@@ -12,6 +12,8 @@ export interface ChatRequest {
   max_tokens?: number;
   stream?: boolean;
   api_key: string;
+  web_search?: boolean;
+  show_reasoning?: boolean;
 }
 
 export interface ChatResponse {
@@ -21,6 +23,16 @@ export interface ChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
+  webSearchResults?: WebSearchResult[];
+  reasoning?: string;
+}
+
+export interface WebSearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+  source: string;
+  publishDate?: string;
 }
 
 export interface EmbeddingRequest {

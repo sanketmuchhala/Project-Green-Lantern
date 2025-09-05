@@ -2,11 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import { ChatRequest } from './types.js';
+import { ChatRequest, WebSearchResult } from './types.js';
 import { openaiProvider } from './providers/openai.js';
 import { anthropicProvider } from './providers/anthropic.js';
 import { deepseekProvider } from './providers/deepseek.js';
 import { geminiProvider } from './providers/gemini.js';
+import { performWebSearch, extractSearchQuery, enhancePromptWithWebResults } from './services/webSearch.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -144,11 +145,106 @@ app.post('/v1/chat', async (req, res) => {
     // Log request (without sensitive data)
     console.log(`[${new Date().toISOString()}] Chat request: ${providerName}/${chatRequest.model}, ${chatRequest.messages.length} messages`);
     
-    // Get provider and make request
-    const provider = providers[providerName];
-    const response = await provider.chat(chatRequest);
+    // Perform web search if requested
+    let webSearchResults: WebSearchResult[] = [];
+    let enhancedMessages = chatRequest.messages;
     
-    res.json(response);
+    if (chatRequest.web_search && chatRequest.messages.length > 0) {
+      const lastMessage = chatRequest.messages[chatRequest.messages.length - 1];
+      if (lastMessage.role === 'user') {
+        const searchQuery = extractSearchQuery(lastMessage.content);
+        console.log(`[${new Date().toISOString()}] Performing web search for: ${searchQuery}`);
+        
+        try {
+          webSearchResults = await performWebSearch(searchQuery);
+          
+          if (webSearchResults.length > 0) {
+            // Enhance the user's message with web search context
+            const enhancedContent = enhancePromptWithWebResults(lastMessage.content, webSearchResults);
+            enhancedMessages = [
+              ...chatRequest.messages.slice(0, -1),
+              { ...lastMessage, content: enhancedContent }
+            ];
+          }
+        } catch (searchError) {
+          console.error('Web search failed:', searchError);
+        }
+      }
+    }
+    
+    // Add context awareness system message if this is a multi-turn conversation
+    if (enhancedMessages.length > 1) {
+      const contextMessage = {
+        role: 'system' as const,
+        content: `You are having an ongoing conversation with the user. Please maintain full context awareness of all previous messages, topics discussed, decisions made, and any relevant information shared throughout this conversation. Reference previous parts of our conversation when relevant and helpful.`
+      };
+      
+      // Insert at the beginning, after any existing system messages
+      const systemMessageIndex = enhancedMessages.findIndex(msg => msg.role !== 'system');
+      if (systemMessageIndex > 0) {
+        enhancedMessages = [
+          ...enhancedMessages.slice(0, systemMessageIndex),
+          contextMessage,
+          ...enhancedMessages.slice(systemMessageIndex)
+        ];
+      } else {
+        enhancedMessages = [contextMessage, ...enhancedMessages];
+      }
+    }
+    
+    // Add reasoning prompt if requested
+    if (chatRequest.show_reasoning && enhancedMessages.length > 0) {
+      const lastMessage = enhancedMessages[enhancedMessages.length - 1];
+      if (lastMessage.role === 'user') {
+        const reasoningPrompt = `${lastMessage.content}
+
+IMPORTANT: Please show your thinking process step by step before providing your answer. Structure your response as follows:
+
+<thinking>
+[Your detailed thought process, reasoning, analysis, considerations, etc.]
+</thinking>
+
+[Your final answer/response]
+
+Show your work and explain your reasoning clearly.`;
+
+        enhancedMessages = [
+          ...enhancedMessages.slice(0, -1),
+          { ...lastMessage, content: reasoningPrompt }
+        ];
+      }
+    }
+    
+    // Get provider and make request with enhanced messages
+    const provider = providers[providerName];
+    const enhancedRequest = { ...chatRequest, messages: enhancedMessages };
+    const response = await provider.chat(enhancedRequest);
+    
+    // Extract reasoning if present
+    let reasoning = '';
+    let cleanedContent = response.message.content;
+    
+    if (chatRequest.show_reasoning && response.message.content.includes('<thinking>')) {
+      const thinkingMatch = response.message.content.match(/<thinking>([\s\S]*?)<\/thinking>/);
+      if (thinkingMatch) {
+        reasoning = thinkingMatch[1].trim();
+        // Remove the thinking section from the main content
+        cleanedContent = response.message.content.replace(/<thinking>[\s\S]*?<\/thinking>\s*/g, '').trim();
+      }
+    }
+    
+    // Add web search results and reasoning to response
+    const enhancedResponse = {
+      ...response,
+      message: {
+        ...response.message,
+        content: cleanedContent
+      },
+      ...(webSearchResults.length > 0 && { webSearchResults }),
+      ...(reasoning && { reasoning })
+    };
+    
+    res.json(enhancedResponse);
     
   } catch (error: any) {
     // Strip sensitive information from logs
