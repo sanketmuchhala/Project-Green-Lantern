@@ -18,7 +18,7 @@ interface ChatStore {
   loadSettings: () => Promise<void>;
   newConversation: (defaults?: Partial<Conversation>) => Promise<void>;
   selectConversation: (id: string) => void;
-  addMessage: (role: 'user' | 'assistant' | 'system', content: string) => Promise<void>;
+  addMessage: (role: 'user' | 'assistant' | 'system', content: string, metadata?: { webSearchResults?: import('../lib/db').WebSearchResult[]; reasoning?: string }) => Promise<void>;
   updateConversationTitle: (id: string, title: string) => Promise<void>;
   updateConversationSettings: (id: string, updates: Partial<Pick<Conversation, 'provider' | 'model'> & Conversation['settings']>) => Promise<void>;
   deleteConversation: (id: string) => Promise<void>;
@@ -105,7 +105,7 @@ const useChat = create<ChatStore>((set, get) => ({
   },
   
   // Add message to active conversation
-  addMessage: async (role: 'user' | 'assistant' | 'system', content: string) => {
+  addMessage: async (role: 'user' | 'assistant' | 'system', content: string, metadata?: { webSearchResults?: import('../lib/db').WebSearchResult[]; reasoning?: string }) => {
     const state = get();
     const activeConv = state.activeConversation();
     
@@ -118,7 +118,8 @@ const useChat = create<ChatStore>((set, get) => ({
       id: uuidv4(),
       role,
       content,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      ...(metadata && { metadata })
     };
     
     const updatedConversation: Conversation = {

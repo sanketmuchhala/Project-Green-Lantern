@@ -3,11 +3,23 @@ import Dexie, { Table } from 'dexie';
 export type Provider = "openai" | "anthropic" | "gemini" | "deepseek";
 export type Role = "system" | "user" | "assistant";
 
+export interface WebSearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+  source: string;
+  publishDate?: string;
+}
+
 export interface Message {
   id: string;
   role: Role;
   content: string;
   createdAt: number;
+  metadata?: {
+    webSearchResults?: WebSearchResult[];
+    reasoning?: string;
+  };
 }
 
 export interface Conversation {
