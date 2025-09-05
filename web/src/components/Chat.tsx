@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Settings, Plus } from 'lucide-react';
+import { Send, Loader2, Settings, Plus, ChevronDown } from 'lucide-react';
 import { Message } from './Message';
 import useChat from '../state/chatStore';
 import { sanitizeDisplayText } from '../lib/stripEmojis';
+import { PROVIDER_NAMES, getModelsForProvider } from '../constants/models';
 
 interface ChatProps {
   onOpenSettings: () => void;
@@ -11,15 +12,19 @@ interface ChatProps {
 export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   
   const { 
     activeConversation,
     addMessage,
     newConversation,
     getApiKey,
-    getCurrentProvider
+    getCurrentProvider,
+    updateConversationSettings,
+    settings
   } = useChat();
 
   useEffect(() => {
@@ -33,10 +38,45 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     }
   }, [input]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowModelDropdown(false);
+      }
+    };
+
+    if (showModelDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showModelDropdown]);
+
   const conversation = activeConversation();
   const conversationProvider = conversation?.provider || getCurrentProvider();
   const currentApiKey = getApiKey(conversationProvider);
   const hasValidKey = currentApiKey && currentApiKey.length > 10;
+
+  // Get available providers (those with valid API keys)
+  const availableProviders = Object.keys(PROVIDER_NAMES).filter(provider => {
+    const key = getApiKey(provider as any);
+    return key && key.length > 10;
+  });
+
+  // Get available models for current provider
+  const availableModels = conversation ? getModelsForProvider(conversation.provider) : [];
+
+  const handleModelChange = async (newModel: string) => {
+    if (conversation && newModel !== conversation.model) {
+      await updateConversationSettings(conversation.id, {
+        model: newModel
+      });
+    }
+    setShowModelDropdown(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,9 +199,36 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-semibold text-white">{sanitizeDisplayText(conversation.title)}</h1>
-            <p className="text-sm text-neutral-400">
-              {conversation.provider} • {conversation.model}
-            </p>
+            <div className="flex items-center gap-2 text-sm text-neutral-400">
+              <span>{PROVIDER_NAMES[conversation.provider as keyof typeof PROVIDER_NAMES]}</span>
+              <span>•</span>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setShowModelDropdown(!showModelDropdown)}
+                  className="flex items-center gap-1 hover:text-neutral-200 transition-colors"
+                  disabled={availableModels.length <= 1}
+                >
+                  <span>{conversation.model}</span>
+                  {availableModels.length > 1 && <ChevronDown size={14} />}
+                </button>
+                
+                {showModelDropdown && availableModels.length > 1 && (
+                  <div className="absolute top-full left-0 mt-1 bg-neutral-800 rounded-lg border border-neutral-700 shadow-xl z-50 min-w-48">
+                    {availableModels.map((model) => (
+                      <button
+                        key={model}
+                        onClick={() => handleModelChange(model)}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                          model === conversation.model ? 'text-blue-400 bg-neutral-700' : 'text-neutral-200'
+                        }`}
+                      >
+                        {model}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           
           <div className="flex items-center gap-2">
