@@ -3,7 +3,8 @@ import { Send, Loader2, Settings, Plus, ChevronDown } from 'lucide-react';
 import { Message } from './Message';
 import useChat from '../state/chatStore';
 import { sanitizeDisplayText } from '../lib/stripEmojis';
-import { PROVIDER_NAMES, getModelsForProvider } from '../constants/models';
+import { PROVIDER_NAMES, getModelsForProvider, getDefaultModelForProvider } from '../constants/models';
+import type { Provider } from '../lib/db';
 
 interface ChatProps {
   onOpenSettings: () => void;
@@ -13,9 +14,11 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const providerDropdownRef = useRef<HTMLDivElement>(null);
   
   const { 
     activeConversation,
@@ -23,8 +26,7 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     newConversation,
     getApiKey,
     getCurrentProvider,
-    updateConversationSettings,
-    settings
+    updateConversationSettings
   } = useChat();
 
   useEffect(() => {
@@ -38,22 +40,25 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     }
   }, [input]);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowModelDropdown(false);
       }
+      if (providerDropdownRef.current && !providerDropdownRef.current.contains(event.target as Node)) {
+        setShowProviderDropdown(false);
+      }
     };
 
-    if (showModelDropdown) {
+    if (showModelDropdown || showProviderDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showModelDropdown]);
+  }, [showModelDropdown, showProviderDropdown]);
 
   const conversation = activeConversation();
   const conversationProvider = conversation?.provider || getCurrentProvider();
@@ -76,6 +81,17 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       });
     }
     setShowModelDropdown(false);
+  };
+
+  const handleProviderChange = async (newProvider: Provider) => {
+    if (conversation && newProvider !== conversation.provider) {
+      const defaultModel = getDefaultModelForProvider(newProvider);
+      await updateConversationSettings(conversation.id, {
+        provider: newProvider,
+        model: defaultModel
+      });
+    }
+    setShowProviderDropdown(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -200,8 +216,37 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
           <div>
             <h1 className="font-semibold text-white">{sanitizeDisplayText(conversation.title)}</h1>
             <div className="flex items-center gap-2 text-sm text-neutral-400">
-              <span>{PROVIDER_NAMES[conversation.provider as keyof typeof PROVIDER_NAMES]}</span>
+              {/* Provider Dropdown */}
+              <div className="relative" ref={providerDropdownRef}>
+                <button
+                  onClick={() => setShowProviderDropdown(!showProviderDropdown)}
+                  className="flex items-center gap-1 hover:text-neutral-200 transition-colors"
+                  disabled={availableProviders.length <= 1}
+                >
+                  <span>{PROVIDER_NAMES[conversation.provider as keyof typeof PROVIDER_NAMES]}</span>
+                  {availableProviders.length > 1 && <ChevronDown size={14} />}
+                </button>
+                
+                {showProviderDropdown && availableProviders.length > 1 && (
+                  <div className="absolute top-full left-0 mt-1 bg-neutral-800 rounded-lg border border-neutral-700 shadow-xl z-50 min-w-36">
+                    {availableProviders.map((provider) => (
+                      <button
+                        key={provider}
+                        onClick={() => handleProviderChange(provider as Provider)}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                          provider === conversation.provider ? 'text-blue-400 bg-neutral-700' : 'text-neutral-200'
+                        }`}
+                      >
+                        {PROVIDER_NAMES[provider as keyof typeof PROVIDER_NAMES]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <span>•</span>
+
+              {/* Model Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowModelDropdown(!showModelDropdown)}
