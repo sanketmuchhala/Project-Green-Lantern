@@ -1,7 +1,6 @@
 import React from 'react';
 import { User, Bot } from 'lucide-react';
 import { ChatMessage } from '../hooks/useChat';
-import { sanitizeDisplayText } from '../lib/stripEmojis';
 
 interface MessageProps {
   message: ChatMessage;
@@ -30,7 +29,7 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
         </div>
         
         <div className="prose prose-sm max-w-none" style={{ color: 'hsl(var(--foreground))' }}>
-          {sanitizeDisplayText(message.content).split('\n').map((line, i) => (
+          {message.content.split('\n').map((line, i) => (
             <React.Fragment key={i}>
               {formatLine(line)}
               {i < message.content.split('\n').length - 1 && <br />}

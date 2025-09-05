@@ -6,12 +6,15 @@
     "dev": "vite --port 5173",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "lint": "npm run ci:no-emoji",
+    "ci:no-emoji": "node ../scripts/no-emoji-check.mjs"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
     "clsx": "^2.0.0",
     "dexie": "^4.2.0",
+    "emoji-regex": "^10.5.0",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -21,8 +24,11 @@
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
+    "eslint": "^8.45.0",
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",

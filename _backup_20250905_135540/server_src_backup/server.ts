@@ -87,10 +87,10 @@ app.post('/v1/ping', async (req, res) => {
     
     try {
       await providers[provider as keyof typeof providers].chat(testRequest);
-      console.log(`[SUCCESS] API key test successful for ${provider}`);
+      console.log(`✅ API key test successful for ${provider}`);
       res.json({ ok: true, message: `API key valid for ${provider}` });
     } catch (error: any) {
-      console.log(`[FAILED] API key test failed for ${provider}:`, error.message || error);
+      console.log(`❌ API key test failed for ${provider}:`, error.message || error);
       
       if (error.code === 'AUTH') {
         return res.status(401).json({ ok: false, message: error.message });
@@ -101,7 +101,7 @@ app.post('/v1/ping', async (req, res) => {
       }
       
       // Log more details for debugging
-      console.log(`[DEBUG] Error details - Code: ${error.code}, Status: ${error.status}, Provider: ${error.provider}`);
+      console.log(`🔍 Error details - Code: ${error.code}, Status: ${error.status}, Provider: ${error.provider}`);
       
       // If it's any other error, the key might be valid but there's another issue
       res.json({ ok: false, message: error.message || `Test failed for ${provider}` });
@@ -194,7 +194,7 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 });
 
 app.listen(PORT, () => {
-  console.log(`[SERVER] BYOK Research Copilot Server running on http://localhost:${PORT}`);
-  console.log(`[SECURITY] Local-only mode. API keys are never logged or stored.`);
-  console.log(`[READY] Proxy ready for OpenAI, Anthropic, DeepSeek, and Gemini`);
+  console.log(`🚀 BYOK Research Copilot Server running on http://localhost:${PORT}`);
+  console.log(`⚠️  SECURITY: Local-only mode. API keys are never logged or stored.`);
+  console.log(`📡 Ready to proxy requests to OpenAI, Anthropic, DeepSeek, and Gemini`);
 });

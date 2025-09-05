@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, AlertTriangle, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import useChat from '../state/chatStore';
 import { Provider } from '../lib/db';
-import { PROVIDER_NAMES, getModelsForProvider, getDefaultModelForProvider } from '../constants/models';
+import { MODELS, PROVIDER_NAMES, getModelsForProvider, getDefaultModelForProvider } from '../constants/models';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     saveSettings, 
     getApiKey, 
     setApiKey, 
+    getCurrentProvider,
     testApiKey,
     loadSettings
   } = useChat();
@@ -122,7 +123,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black bg-opacity-60" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/60" onClick={onClose} />
       
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-neutral-900 text-neutral-100 shadow-xl">
         {/* Header */}
@@ -138,7 +139,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         
         <div className="p-6 space-y-6">
           {/* Security Warning */}
-          <div className="p-4 rounded-lg bg-amber-950 border border-amber-800">
+          <div className="p-4 rounded-lg bg-amber-950/50 border border-amber-800">
             <div className="flex items-start gap-2">
               <AlertTriangle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
@@ -189,7 +190,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <label className="block text-sm font-medium mb-2 text-neutral-200">
                 API Key for {PROVIDER_NAMES[selectedProvider]}
                 {currentApiKey && currentApiKey.length > 10 && 
-                  <span className="ml-2 text-green-400 text-xs font-medium">SET</span>
+                  <span className="ml-2 text-green-400 text-xs">✓ Set</span>
                 }
               </label>
               <div className="space-y-2">
@@ -299,7 +300,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <div className="flex justify-between items-center pt-4 border-t border-neutral-800">
             <button
               onClick={clearAllData}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-red-900 hover:bg-opacity-20 rounded transition-colors text-red-400"
+              className="flex items-center gap-2 px-3 py-2 hover:bg-red-900/20 rounded transition-colors text-red-400"
             >
               <Trash2 size={16} />
               Clear All Data

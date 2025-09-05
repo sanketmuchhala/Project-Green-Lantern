@@ -1,4 +1,4 @@
-import { ChatRequest, ChatResponse, EmbeddingRequest, EmbeddingResponse, ProviderAdapter } from '../types.js';
+import { ChatRequest, ChatResponse, ProviderAdapter } from '../types.js';
 
 export const openaiProvider: ProviderAdapter = {
   name: 'OpenAI',

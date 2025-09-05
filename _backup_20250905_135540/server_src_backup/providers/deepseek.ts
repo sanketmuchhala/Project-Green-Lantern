@@ -6,25 +6,18 @@ export const deepseekProvider: ProviderAdapter = {
   async chat(request: ChatRequest): Promise<ChatResponse> {
     const { messages, model, temperature = 0.7, max_tokens = 4000, api_key } = request;
     
-    // Enhanced API key validation
-    if (!api_key || api_key.trim().length === 0) {
-      throw { code: 'AUTH', provider: 'deepseek', message: 'DeepSeek API key is required' };
+    // Validate API key format
+    if (!api_key || api_key.length < 10) {
+      throw { code: 'AUTH', provider: 'deepseek', message: 'DeepSeek API key is required and must be at least 10 characters' };
     }
     
-    const trimmedKey = api_key.trim();
-    
-    // Check for truncated keys (like the "****ngs." issue)
-    if (trimmedKey.length < 20 || trimmedKey.includes('*') || trimmedKey.includes('...') || trimmedKey.endsWith('.')) {
-      throw { code: 'AUTH', provider: 'deepseek', message: 'DeepSeek API key appears to be truncated, masked, or incomplete. Please provide the complete key from platform.deepseek.com/api_keys' };
-    }
-    
-    // DeepSeek keys should not contain spaces or special characters (except underscores and hyphens)
-    if (!/^[a-zA-Z0-9_-]+$/.test(trimmedKey)) {
-      throw { code: 'AUTH', provider: 'deepseek', message: 'DeepSeek API key contains invalid characters. Please verify you copied the complete key correctly.' };
+    // Check for common API key issues
+    if (api_key.includes('...') || api_key.includes('*')) {
+      throw { code: 'AUTH', provider: 'deepseek', message: 'DeepSeek API key appears to be truncated or masked. Please provide the full key.' };
     }
     
     const baseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
-    console.log(`[DeepSeek] Making request to ${baseUrl}/v1/chat/completions with model ${model}`);
+    console.log(`🔍 DeepSeek: Making request to ${baseUrl}/v1/chat/completions with model ${model}`);
     
     let response: Response;
     try {
@@ -32,7 +25,7 @@ export const deepseekProvider: ProviderAdapter = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${trimmedKey}`
+        'Authorization': `Bearer ${api_key}`
       },
       body: JSON.stringify({
         model,
@@ -46,11 +39,11 @@ export const deepseekProvider: ProviderAdapter = {
       })
     });
     } catch (networkError: any) {
-      console.log(`[DeepSeek] Network error - ${networkError.message}`);
+      console.log(`❌ DeepSeek: Network error - ${networkError.message}`);
       throw { code: 'HTTP', status: 0, provider: 'deepseek', message: `Network error: ${networkError.message}` };
     }
     
-    console.log(`[DeepSeek] Response status ${response.status} ${response.statusText}`);
+    console.log(`🔍 DeepSeek: Response status ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorText = await response.text();

@@ -8,14 +8,21 @@
     "dev": "concurrently \"npm -C server run dev\" \"npm -C web run dev\"",
     "build": "npm -C server run build && npm -C web run build",
     "start": "npm -C server start",
-    "clean": "rm -rf server/dist web/dist node_modules server/node_modules web/node_modules"
+    "clean": "rm -rf server/dist web/dist node_modules server/node_modules web/node_modules",
+    "ci:no-emoji": "node ./scripts/no-emoji-check.mjs",
+    "deadcode": "node ./scripts/deadcode-analyzer.mjs",
+    "typecheck": "cd web && npx tsc --noEmit && cd ../server && npx tsc --noEmit"
   },
   "workspaces": [
     "server",
     "web"
   ],
   "devDependencies": {
+    "@typescript-eslint/parser": "^8.42.0",
     "concurrently": "^8.2.2",
+    "depcheck": "^1.4.7",
+    "emoji-regex": "^10.5.0",
+    "ts-unused-exports": "^11.0.1",
     "typescript": "^5.0.0"
   },
   "engines": {

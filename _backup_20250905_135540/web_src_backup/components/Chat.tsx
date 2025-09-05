@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Settings, Plus } from 'lucide-react';
 import { Message } from './Message';
+import { OptimizedPrompt } from './OptimizedPrompt';
 import useChat from '../state/chatStore';
-import { sanitizeDisplayText } from '../lib/stripEmojis';
 
 interface ChatProps {
   onOpenSettings: () => void;
@@ -11,6 +11,7 @@ interface ChatProps {
 export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
@@ -18,13 +19,14 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     activeConversation,
     addMessage,
     newConversation,
+    settings,
     getApiKey,
     getCurrentProvider
   } = useChat();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation()?.messages]);
+  }, [activeConversation?.messages]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -44,6 +46,7 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
 
     const currentInput = input.trim();
     setInput('');
+    setError(null);
     setIsLoading(true);
 
     try {
@@ -89,16 +92,17 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       
       // Provide more helpful error messages
       if (error.message.includes('401') || error.message.includes('Authentication failed')) {
-        errorContent = `**Invalid API Key**: Your API key appears to be incorrect or expired for ${conversationProvider}. Please check your settings.`;
+        errorContent = `❌ **Invalid API Key**: Your API key appears to be incorrect or expired for ${conversationProvider}. Please check your settings.`;
       } else if (error.message.includes('429') || error.message.includes('Rate limited')) {
-        errorContent = `**Rate Limited**: The ${conversationProvider} API is rate limiting your requests. Please wait a moment and try again.`;
+        errorContent = `⏳ **Rate Limited**: The ${conversationProvider} API is rate limiting your requests. Please wait a moment and try again.`;
       } else if (error.message.includes('Network error') || error.message.includes('fetch')) {
-        errorContent = `**Network Error**: Unable to connect to the server. Please check your connection.`;
+        errorContent = `🌐 **Network Error**: Unable to connect to the server. Please check your connection.`;
       } else {
         errorContent += ` Please check your API key and settings.`;
       }
       
       await addMessage('assistant', errorContent);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +120,7 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     return (
       <div className="flex-1 flex items-center justify-center bg-neutral-950">
         <div className="text-center space-y-6 max-w-md">
-          <div className="text-4xl mb-4 font-semibold text-neutral-300">BYOK</div>
+          <div className="text-4xl mb-4">💬</div>
           <h2 className="text-2xl font-semibold text-white">Welcome to BYOK Copilot</h2>
           <p className="text-neutral-400">
             Your local-only AI assistant. Bring your own API keys and chat with confidence.
@@ -141,9 +145,9 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
           </div>
           
           {!hasValidKey && (
-            <div className="mt-6 p-4 bg-amber-950 border border-amber-800 rounded-lg">
+            <div className="mt-6 p-4 bg-amber-950/50 border border-amber-800 rounded-lg">
               <p className="text-amber-200 text-sm">
-                <strong>Warning:</strong> No API key configured. Click "Open Settings" to add your API keys.
+                ⚠️ No API key configured. Click "Open Settings" to add your API keys.
               </p>
             </div>
           )}
@@ -158,7 +162,7 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       <div className="border-b border-neutral-800 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-semibold text-white">{sanitizeDisplayText(conversation.title)}</h1>
+            <h1 className="font-semibold text-white">{conversation.title}</h1>
             <p className="text-sm text-neutral-400">
               {conversation.provider} • {conversation.model}
             </p>
@@ -181,8 +185,8 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
         <div className="max-w-4xl mx-auto px-4 py-6">
           {conversation.messages.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-4xl mb-4 font-semibold text-neutral-400">Ready</div>
-              <h3 className="text-lg font-medium text-white mb-2">Start your conversation</h3>
+              <div className="text-6xl mb-4">👋</div>
+              <h3 className="text-lg font-medium text-white mb-2">Ready to chat!</h3>
               <p className="text-neutral-400">
                 Ask me anything. I'll use {conversationProvider} to help you.
               </p>
@@ -214,9 +218,9 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       <div className="border-t border-neutral-800 p-4">
         <div className="max-w-4xl mx-auto">
           {!hasValidKey ? (
-            <div className="p-4 bg-amber-950 border border-amber-800 rounded-lg text-center">
+            <div className="p-4 bg-amber-950/50 border border-amber-800 rounded-lg text-center">
               <p className="text-amber-200 mb-3">
-                <strong>Warning:</strong> No API key configured for {conversationProvider}
+                ⚠️ No API key configured for {conversationProvider}
               </p>
               <button
                 onClick={onOpenSettings}

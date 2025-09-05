@@ -30,3 +30,14 @@ coverage/
 # Temp
 *.tmp
 *.temp
+
+# Memory and vector data (PRIVACY: Keep conversation data local)
+memory-exports/
+*.vectors
+*.embeddings
+conversation-backups/
+
+# Secrets and API keys (SECURITY: Enhanced protection)
+api-keys.json
+secrets.json
+.secrets/

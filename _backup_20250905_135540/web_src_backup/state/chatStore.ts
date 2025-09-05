@@ -30,7 +30,7 @@ interface ChatStore {
   // Helper methods
   persistActiveIfDirty: () => Promise<void>;
   getCurrentProvider: () => Provider;
-  getDefaultSettings: () => Pick<AppSettings, 'temperature' | 'max_tokens' | 'web_enabled'>;
+  getDefaultSettings: () => AppSettings['settings'];
 }
 
 const useChat = create<ChatStore>((set, get) => ({
@@ -69,7 +69,9 @@ const useChat = create<ChatStore>((set, get) => ({
   },
   
   // Create new conversation
-  newConversation: async (defaults = {}) => {    
+  newConversation: async (defaults = {}) => {
+    const state = get();
+    
     // Persist current conversation if it has changes
     await get().persistActiveIfDirty();
     

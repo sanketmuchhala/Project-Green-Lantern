@@ -50,7 +50,7 @@ export const useLocalKeys = () => {
   
   const hasValidKey = (): boolean => {
     const key = getApiKey(getCurrentProvider());
-    return Boolean(key && key.length > 10);
+    return key && key.length > 10;
   };
   
   const clearAllData = async () => {

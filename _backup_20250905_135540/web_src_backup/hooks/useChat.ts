@@ -167,9 +167,9 @@ export const useChat = () => {
       
       // Provide more helpful error messages
       if (error.message.includes('401') || error.message.includes('invalid_api_key')) {
-        errorContent = `**Invalid API Key**: Your API key appears to be incorrect or expired. Please check your settings and ensure you're using the right key for your model.`;
+        errorContent = `❌ **Invalid API Key**: Your API key appears to be incorrect or expired. Please check your settings and ensure you're using the right key for your model.`;
       } else if (error.message.includes('provider') && error.message.includes('auto')) {
-        errorContent = `**Provider Detection Issue**: Could not detect the correct API provider for your model "${model}". Please check your model name in settings.`;
+        errorContent = `❌ **Provider Detection Issue**: Could not detect the correct API provider for your model "${model}". Please check your model name in settings.`;
       } else {
         errorContent += ` Please check your API key and connection.`;
       }

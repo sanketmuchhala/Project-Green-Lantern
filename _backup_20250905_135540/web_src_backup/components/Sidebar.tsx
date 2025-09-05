@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Plus, Trash2, Settings, Edit2, Check, X } from 'lucide-react';
 import { Conversation } from '../lib/db';
-import { sanitizeDisplayText } from '../lib/stripEmojis';
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -75,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div
                 key={conv.id}
                 className={`group flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
-                  activeConversationId === conv.id ? 'bg-neutral-800' : 'hover:bg-neutral-800 hover:bg-opacity-50'
+                  activeConversationId === conv.id ? 'bg-neutral-800' : 'hover:bg-neutral-800/50'
                 }`}
                 onClick={() => editingId !== conv.id && onLoadChat(conv.id)}
               >
@@ -116,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                   ) : (
                     <>
-                      <div className="text-sm font-medium truncate text-white">{sanitizeDisplayText(conv.title)}</div>
+                      <div className="text-sm font-medium truncate text-white">{conv.title}</div>
                       <div className="text-xs text-neutral-400">
                         {new Date(conv.updatedAt).toLocaleDateString()}
                       </div>
