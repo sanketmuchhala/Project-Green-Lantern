@@ -1,32 +1,41 @@
 {
   "name": "byok-research-copilot",
   "version": "1.0.0",
-  "description": "Local-only BYOK Research Copilot with your own API keys",
+  "description": "Local-only BYOK Research Copilot with Perplexity++ features",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "concurrently \"npm -C server run dev\" \"npm -C web run dev\"",
-    "build": "npm -C server run build && npm -C web run build",
-    "start": "npm -C server start",
-    "clean": "rm -rf server/dist web/dist node_modules server/node_modules web/node_modules",
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "start": "pnpm --filter @app/server start",
+    "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
+    "lint": "pnpm -r lint && pnpm ci:no-emoji",
+    "test": "pnpm -r test",
     "ci:no-emoji": "node ./scripts/no-emoji-check.mjs",
     "deadcode": "node ./scripts/deadcode-analyzer.mjs",
-    "typecheck": "cd web && npx tsc --noEmit && cd ../server && npx tsc --noEmit"
+    "typecheck": "pnpm -r typecheck"
   },
-  "workspaces": [
-    "server",
-    "web"
-  ],
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^8.42.0",
+    "autoprefixer": "^10.4.14",
     "concurrently": "^8.2.2",
     "depcheck": "^1.4.7",
     "emoji-regex": "^10.5.0",
+    "eslint": "^8.45.0",
+    "postcss": "^8.4.27",
+    "prettier": "^3.0.0",
+    "tailwindcss": "^3.3.3",
     "ts-unused-exports": "^11.0.1",
-    "typescript": "^5.0.0"
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^4.4.5",
+    "vitest": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=8.0.0"
+    "pnpm": ">=8.0.0"
   }
 }
