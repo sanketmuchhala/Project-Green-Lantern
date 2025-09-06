@@ -6,9 +6,9 @@
   "type": "module",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "dev": "pnpm --parallel -r dev",
+    "dev": "concurrently \"ollama serve\" \"pnpm --parallel -r dev\"",
     "build": "pnpm -r build",
-    "start": "pnpm --filter @app/server start",
+    "start": "concurrently \"ollama serve\" \"pnpm --filter @app/server start\"",
     "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules",
     "lint": "pnpm -r lint && pnpm ci:no-emoji",
     "test": "pnpm -r test",

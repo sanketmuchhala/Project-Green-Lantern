@@ -87,6 +87,7 @@ export class PromptOrchestrator {
     const systemMessage = {
       role: 'system' as const,
       content: orchestrationPrompt,
+      id: 'orchestrator-' + Date.now(),
       timestamp: Date.now()
     };
     

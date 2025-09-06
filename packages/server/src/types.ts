@@ -6,7 +6,7 @@ export interface ChatMessage {
 
 export interface ChatRequest {
   messages: ChatMessage[];
-  provider: 'openai' | 'anthropic' | 'deepseek' | 'gemini' | 'auto';
+  provider: 'openai' | 'anthropic' | 'deepseek' | 'gemini' | 'local-ollama' | 'auto';
   model: string;
   temperature?: number;
   max_tokens?: number;
@@ -14,6 +14,9 @@ export interface ChatRequest {
   api_key: string;
   web_search?: boolean;
   show_reasoning?: boolean;
+  // Local Ollama specific fields
+  baseURL?: string;
+  num_ctx?: number;
 }
 
 export interface ChatResponse {
@@ -37,7 +40,7 @@ export interface WebSearchResult {
 
 export interface EmbeddingRequest {
   text: string;
-  provider: 'openai' | 'anthropic' | 'deepseek' | 'gemini';
+  provider: 'openai' | 'anthropic' | 'deepseek' | 'gemini' | 'local-ollama';
   model?: string;
   api_key: string;
 }

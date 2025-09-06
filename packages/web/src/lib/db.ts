@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie';
 
-export type Provider = "openai" | "anthropic" | "gemini" | "deepseek";
+export type Provider = "openai" | "anthropic" | "gemini" | "deepseek" | "local-ollama";
 export type Role = "system" | "user" | "assistant";
 
 export interface WebSearchResult {
@@ -52,6 +52,9 @@ export interface AppSettings {
   max_tokens: number;
   web_enabled: boolean;
   mode: 'direct' | 'research' | 'coach';
+  // Local Ollama specific settings
+  baseURL?: string;
+  num_ctx?: number;
 }
 
 export class ChatDatabase extends Dexie {
@@ -100,12 +103,15 @@ export const migrateFromLocalStorage = async () => {
             openai: parsedApiKeys.apiKey || parsedApiKeys.openai || '',
             anthropic: parsedApiKeys.anthropic || '',
             gemini: parsedApiKeys.gemini || '',
-            deepseek: parsedApiKeys.deepseek || ''
+            deepseek: parsedApiKeys.deepseek || '',
+            'local-ollama': ''
           },
           temperature: parsedSettings.temperature || 0.7,
           max_tokens: parsedSettings.max_tokens || 4000,
           web_enabled: parsedSettings.web_enabled || false,
-          mode: parsedSettings.mode || 'direct'
+          mode: parsedSettings.mode || 'direct',
+          baseURL: 'http://localhost:11434',
+          num_ctx: 4096
         };
         
         await db.settings.put(migratedSettings);
@@ -173,12 +179,15 @@ export const initializeDatabase = async () => {
           openai: '',
           anthropic: '',
           gemini: '',
-          deepseek: ''
+          deepseek: '',
+          'local-ollama': ''
         },
         temperature: 0.7,
         max_tokens: 4000,
         web_enabled: false,
-        mode: 'direct'
+        mode: 'direct',
+        baseURL: 'http://localhost:11434',
+        num_ctx: 4096
       };
       await db.settings.put(defaultSettings);
     }

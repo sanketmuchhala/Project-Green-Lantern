@@ -27,7 +27,8 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     newConversation,
     getApiKey,
     getCurrentProvider,
-    updateConversationSettings
+    updateConversationSettings,
+    settings
   } = useChat();
 
   useEffect(() => {
@@ -45,10 +46,11 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const conversation = activeConversation();
   const conversationProvider = conversation?.provider || getCurrentProvider();
   const currentApiKey = getApiKey(conversationProvider);
-  const hasValidKey = currentApiKey && currentApiKey.length > 10;
+  const hasValidKey = conversationProvider === 'local-ollama' || (currentApiKey && currentApiKey.length > 10);
 
-  // Get available providers (those with valid API keys)
+  // Get available providers (those with valid API keys or local-ollama)
   const availableProviders = Object.keys(PROVIDER_NAMES).filter(provider => {
+    if (provider === 'local-ollama') return true; // Local Ollama doesn't need API key
     const key = getApiKey(provider as any);
     return key && key.length > 10;
   });
@@ -107,7 +109,12 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
           temperature: conversation.settings.temperature,
           max_tokens: conversation.settings.max_tokens,
           web_search: webSearchEnabled,
-          show_reasoning: reasoningEnabled
+          show_reasoning: reasoningEnabled,
+          // Local Ollama specific fields
+          ...(conversationProvider === 'local-ollama' && settings && {
+            baseURL: settings.baseURL || 'http://localhost:11434',
+            num_ctx: settings.num_ctx || 4096
+          })
         })
       });
 

@@ -7,7 +7,6 @@ import { openaiProvider } from './providers/openai.js';
 import { anthropicProvider } from './providers/anthropic.js';
 import { deepseekProvider } from './providers/deepseek.js';
 import { geminiProvider } from './providers/gemini.js';
-import { localOllamaProvider, pingOllama } from './providers/local-ollama.js';
 import { performWebSearch, extractSearchQuery, enhancePromptWithWebResults } from './services/webSearch.js';
 import { orchestrator } from './orchestrator/index.js';
 
@@ -30,8 +29,7 @@ const providers = {
   openai: openaiProvider,
   anthropic: anthropicProvider,
   deepseek: deepseekProvider,
-  gemini: geminiProvider,
-  'local-ollama': localOllamaProvider
+  gemini: geminiProvider
 };
 
 // Auto-detect provider from model name
@@ -50,12 +48,6 @@ function detectProvider(model: string): keyof typeof providers {
     return 'gemini';
   }
   
-  // Check for local Ollama models
-  if (modelLower.includes('mistral') || modelLower.includes('llama') || modelLower.includes('codellama') || 
-      modelLower.includes('qwen') || modelLower.includes('phi') || modelLower.includes('gemma')) {
-    return 'local-ollama';
-  }
-  
   // Default to OpenAI for GPT models and others
   return 'openai';
 }
@@ -65,7 +57,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Provider ping test endpoint  
+// DeepSeek key test endpoint
 app.get('/v1/ping', async (req, res) => {
   if (req.query.provider === 'deepseek') {
     const apiKey = req.query.api_key as string || req.headers.authorization?.replace('Bearer ', '');
@@ -78,7 +70,7 @@ app.get('/v1/ping', async (req, res) => {
       const testRequest: ChatRequest = {
         provider: 'deepseek',
         model: 'deepseek-chat',
-        messages: [{ role: 'user', content: 'ping', id: 'ping', timestamp: Date.now() }],
+        messages: [{ role: 'user', content: 'ping' }],
         api_key: apiKey,
         temperature: 0.1,
         max_tokens: 5
@@ -93,17 +85,8 @@ app.get('/v1/ping', async (req, res) => {
         res.json({ ok: false, message: 'Invalid key or DeepSeek error' });
       }
     }
-  } else if (req.query.provider === 'local-ollama') {
-    const baseURL = req.query.baseURL as string || 'http://localhost:11434';
-    
-    try {
-      const isOk = await pingOllama(baseURL);
-      res.json({ ok: isOk });
-    } catch (error: any) {
-      res.json({ ok: false, message: error.message });
-    }
   } else {
-    res.status(400).json({ error: 'DeepSeek and local-ollama providers supported on this endpoint' });
+    res.status(400).json({ error: 'Only DeepSeek provider supported on this endpoint' });
   }
 });
 
@@ -112,13 +95,8 @@ app.post('/v1/ping', async (req, res) => {
   try {
     let { provider, model, api_key } = req.body;
     
-    if (!provider) {
-      return res.status(400).json({ error: 'Provider is required' });
-    }
-    
-    // Local Ollama doesn't need API key
-    if (provider !== 'local-ollama' && !api_key) {
-      return res.status(400).json({ error: 'API key is required for this provider' });
+    if (!provider || !api_key) {
+      return res.status(400).json({ error: 'Provider and API key are required' });
     }
     
     // Auto-detect provider if set to 'auto'
@@ -132,16 +110,11 @@ app.post('/v1/ping', async (req, res) => {
     
     console.log(`[${new Date().toISOString()}] API key test for ${provider}`);
     
-    // Local Ollama uses GET /v1/ping endpoint instead
-    if (provider === 'local-ollama') {
-      return res.status(400).json({ error: 'Use GET /v1/ping with provider=local-ollama for Ollama server testing' });
-    }
-    
     // Create a minimal test request
     const testRequest: ChatRequest = {
-      provider: provider as 'openai' | 'anthropic' | 'deepseek' | 'gemini',
+      provider: provider as keyof typeof providers,
       model: model || 'test',
-      messages: [{ role: 'user', content: 'Hello', id: 'test', timestamp: Date.now() }],
+      messages: [{ role: 'user', content: 'Hello' }],
       api_key,
       temperature: 0.1,
       max_tokens: 10
@@ -196,11 +169,10 @@ app.post('/v1/chat', async (req, res) => {
     }
     
     if (!providerName || !providers[providerName]) {
-      return res.status(400).json({ error: 'Valid provider is required (openai, anthropic, deepseek, gemini, local-ollama, or auto)' });
+      return res.status(400).json({ error: 'Valid provider is required (openai, anthropic, deepseek, gemini, or auto)' });
     }
     
-    // Skip API key validation for local-ollama
-    if (providerName !== 'local-ollama' && !chatRequest.api_key) {
+    if (!chatRequest.api_key) {
       return res.status(400).json({ error: 'API key is required' });
     }
     
@@ -238,9 +210,7 @@ app.post('/v1/chat', async (req, res) => {
     if (enhancedMessages.length > 1) {
       const contextMessage = {
         role: 'system' as const,
-        content: `You are having an ongoing conversation with the user. Please maintain full context awareness of all previous messages, topics discussed, decisions made, and any relevant information shared throughout this conversation. Reference previous parts of our conversation when relevant and helpful.`,
-        id: 'context-' + Date.now(),
-        timestamp: Date.now()
+        content: `You are having an ongoing conversation with the user. Please maintain full context awareness of all previous messages, topics discussed, decisions made, and any relevant information shared throughout this conversation. Reference previous parts of our conversation when relevant and helpful.`
       };
       
       // Insert at the beginning, after any existing system messages

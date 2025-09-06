@@ -30,9 +30,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [maxTokens, setMaxTokens] = useState(4000);
   const [webEnabled, setWebEnabled] = useState(false);
   const [mode, setMode] = useState<'direct' | 'research' | 'coach'>('direct');
-  // Local Ollama specific fields
-  const [baseURL, setBaseURL] = useState('http://localhost:11434');
-  const [numCtx, setNumCtx] = useState(4096);
 
   // Load current settings when modal opens
   useEffect(() => {
@@ -44,8 +41,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setMaxTokens(settings.max_tokens);
       setWebEnabled(settings.web_enabled);
       setMode(settings.mode);
-      setBaseURL(settings.baseURL || 'http://localhost:11434');
-      setNumCtx(settings.num_ctx || 4096);
     } else if (isOpen) {
       loadSettings();
     }
@@ -72,9 +67,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       temperature,
       max_tokens: maxTokens,
       web_enabled: webEnabled,
-      mode,
-      baseURL,
-      num_ctx: numCtx
+      mode
     });
     
     // Update active conversation to use the selected model and provider
@@ -94,41 +87,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   const handleTestKey = async () => {
-    if (selectedProvider === 'local-ollama') {
-      // For local-ollama, test the connection to Ollama server
-      setIsTestingKey(true);
-      setTestResult(null);
-      
-      try {
-        const response = await fetch(`/api/v1/ping?provider=local-ollama&baseURL=${encodeURIComponent(baseURL)}`);
-        const result = await response.json();
-        setTestResult(result);
-      } catch (error) {
-        setTestResult({ ok: false, message: 'Connection test failed: ' + (error as Error).message });
-      } finally {
-        setIsTestingKey(false);
-      }
-    } else {
-      // For API key based providers
-      if (!currentApiKey.trim()) {
-        setTestResult({ ok: false, message: 'Please enter an API key first' });
-        return;
-      }
-      
-      setIsTestingKey(true);
-      setTestResult(null);
-      
-      // Temporarily save the key for testing
-      await setApiKey(selectedProvider, currentApiKey);
-      
-      try {
-        const result = await testApiKey(selectedProvider, selectedModel);
-        setTestResult(result);
-      } catch (error) {
-        setTestResult({ ok: false, message: 'Test failed: ' + (error as Error).message });
-      } finally {
-        setIsTestingKey(false);
-      }
+    if (!currentApiKey.trim()) {
+      setTestResult({ ok: false, message: 'Please enter an API key first' });
+      return;
+    }
+    
+    setIsTestingKey(true);
+    setTestResult(null);
+    
+    // Temporarily save the key for testing
+    await setApiKey(selectedProvider, currentApiKey);
+    
+    try {
+      const result = await testApiKey(selectedProvider, selectedModel);
+      setTestResult(result);
+    } catch (error) {
+      setTestResult({ ok: false, message: 'Test failed: ' + (error as Error).message });
+    } finally {
+      setIsTestingKey(false);
     }
   };
 
@@ -201,111 +177,51 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               </select>
             </div>
             
-            {/* API Key (hidden for local-ollama) */}
-            {selectedProvider !== 'local-ollama' && (
-              <div>
-                <label className="block body-sm font-medium mb-3 text-neutral-200 flex items-center gap-2">
-                  API Key for {PROVIDER_NAMES[selectedProvider]}
-                  {currentApiKey && currentApiKey.length > 10 && 
-                    <Badge variant="success" size="sm">CONFIGURED</Badge>
-                  }
-                </label>
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Input
-                      type={showKey ? 'text' : 'password'}
-                      value={showKey ? currentApiKey : (currentApiKey ? maskKey(currentApiKey) : '')}
-                      onChange={(e) => setCurrentApiKey(e.target.value)}
-                      placeholder={`Enter your ${PROVIDER_NAMES[selectedProvider]} API key`}
-                      className="pr-12 font-mono text-sm"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowKey(!showKey)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-neutral-700 rounded-lg transition-colors text-neutral-400 hover:text-neutral-200"
-                      aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                    >
-                      {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Button
-                      onClick={handleTestKey}
-                      disabled={isTestingKey || !currentApiKey.trim()}
-                      variant="primary"
-                      size="sm"
-                    >
-                      {isTestingKey ? 'Testing...' : 'Test Key'}
-                    </Button>
-                    
-                    {testResult && (
-                      <div className={`flex items-center gap-2 body-sm ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
-                        {testResult.ok ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                        <span>{testResult.message}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Local Ollama Configuration */}
-            {selectedProvider === 'local-ollama' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block body-sm font-medium mb-3 text-neutral-200">
-                    Base URL
-                  </label>
+            <div>
+              <label className="block body-sm font-medium mb-3 text-neutral-200 flex items-center gap-2">
+                API Key for {PROVIDER_NAMES[selectedProvider]}
+                {currentApiKey && currentApiKey.length > 10 && 
+                  <Badge variant="success" size="sm">CONFIGURED</Badge>
+                }
+              </label>
+              <div className="space-y-3">
+                <div className="relative">
                   <Input
-                    type="text"
-                    value={baseURL}
-                    onChange={(e) => setBaseURL(e.target.value)}
-                    placeholder="http://localhost:11434"
-                    className="font-mono text-sm"
+                    type={showKey ? 'text' : 'password'}
+                    value={showKey ? currentApiKey : (currentApiKey ? maskKey(currentApiKey) : '')}
+                    onChange={(e) => setCurrentApiKey(e.target.value)}
+                    placeholder={`Enter your ${PROVIDER_NAMES[selectedProvider]} API key`}
+                    className="pr-12 font-mono text-sm"
                   />
-                  <div className="muted mt-2">
-                    URL to your local Ollama server
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block body-sm font-medium mb-3 text-neutral-200">
-                    Context Size (num_ctx): {numCtx}
-                  </label>
-                  <input
-                    type="range"
-                    min="2048"
-                    max="32768"
-                    step="1024"
-                    value={numCtx}
-                    onChange={(e) => setNumCtx(parseInt(e.target.value))}
-                    className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer slider"
-                  />
-                  <div className="muted mt-2">
-                    Context window size for the model
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowKey(!showKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-neutral-700 rounded-lg transition-colors text-neutral-400 hover:text-neutral-200"
+                    aria-label={showKey ? 'Hide API key' : 'Show API key'}
+                  >
+                    {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
                 
                 <div className="flex items-center gap-3">
                   <Button
                     onClick={handleTestKey}
-                    disabled={isTestingKey}
+                    disabled={isTestingKey || !currentApiKey.trim()}
                     variant="primary"
                     size="sm"
                   >
-                    {isTestingKey ? 'Testing...' : 'Test Connection'}
+                    {isTestingKey ? 'Testing...' : 'Test Key'}
                   </Button>
                   
                   {testResult && (
                     <div className={`flex items-center gap-2 body-sm ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
                       {testResult.ok ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                      <span>{testResult.message || (testResult.ok ? 'Ollama server connected successfully' : 'Failed to connect to Ollama server')}</span>
+                      <span>{testResult.message}</span>
                     </div>
                   )}
                 </div>
               </div>
-            )}
+            </div>
           </div>
           
           {/* App Settings */}
