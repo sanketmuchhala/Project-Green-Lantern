@@ -91,10 +91,23 @@ export const geminiProvider = {
       throw { code: 'HTTP', status: response.status, provider: 'gemini', message: errorMessage };
     }
 
-    const data: GeminiResponse = await response.json();
-    
-    if (!data.candidates || data.candidates.length === 0) {
-      throw new Error('No response generated from Gemini');
+    let data: GeminiResponse;
+    try {
+      const responseText = await response.text();
+      
+      if (!responseText || responseText.trim() === '') {
+        throw { code: 'HTTP', status: response.status, provider: 'gemini', message: 'Empty response from Gemini API' };
+      }
+      
+      data = JSON.parse(responseText);
+      
+      if (!data.candidates || data.candidates.length === 0) {
+        throw { code: 'HTTP', status: response.status, provider: 'gemini', message: 'No response generated from Gemini API' };
+      }
+      
+    } catch (jsonError: any) {
+      console.log(`[Gemini] JSON parsing error: ${jsonError.message}`);
+      throw { code: 'HTTP', status: response.status, provider: 'gemini', message: `Invalid JSON response from Gemini API: ${jsonError.message}` };
     }
 
     const content = data.candidates[0].content.parts.map(part => part.text).join('');
