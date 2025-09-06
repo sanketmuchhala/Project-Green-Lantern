@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Search, MessageSquare, Trash2, Edit3, Settings } from 'lucide-react';
+import { Button, Input } from '../ui';
 import { sanitizeDisplayText } from '../../lib/stripEmojis';
 import { Conversation } from '../../lib/db';
 
@@ -49,54 +50,56 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className="w-80 bg-neutral-900 border-r border-neutral-700 flex flex-col h-full">
+    <div className="w-80 panel border-r flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-neutral-700">
-        <button
+      <div className="p-6 border-b border-neutral-700">
+        <Button
           onClick={onNewConversation}
-          className="w-full flex items-center gap-3 px-4 py-3 bg-neutral-950 hover:bg-neutral-800 text-neutral-100 rounded-2xl transition-colors font-medium"
+          variant="primary"
+          size="md"
+          className="w-full"
         >
           <Plus size={18} />
           New Chat
-        </button>
+        </Button>
       </div>
 
       {/* Search */}
-      <div className="p-4">
+      <div className="px-4 py-6">
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 z-10" />
+          <Input
             type="text"
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-neutral-800 border border-neutral-700 rounded-xl text-neutral-100 placeholder-neutral-400 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none"
+            className="pl-10"
           />
         </div>
       </div>
 
       {/* Conversations List */}
-      <div className="flex-1 overflow-y-auto px-2">
+      <div className="flex-1 overflow-y-auto px-3 scrollbar-thin">
         {filteredConversations.length === 0 ? (
-          <div className="text-center py-8 text-neutral-400">
-            <MessageSquare size={24} className="mx-auto mb-2 opacity-50" />
-            <p>No conversations yet</p>
-            <p className="text-sm mt-1">Start a new chat to get going</p>
+          <div className="text-center py-12 px-4">
+            <MessageSquare size={32} className="mx-auto mb-3 text-neutral-600" />
+            <p className="body-sm text-neutral-400 mb-1">No conversations yet</p>
+            <p className="muted">Start a new chat to get going</p>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {filteredConversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className={`group relative rounded-xl transition-colors ${
+                className={`group relative rounded-2xl transition-all duration-200 ${
                   conversation.id === activeConversationId
-                    ? 'bg-neutral-800 text-neutral-100'
+                    ? 'bg-neutral-800 text-neutral-100 ring-1 ring-neutral-600'
                     : 'hover:bg-neutral-850 text-neutral-300 hover:text-neutral-100'
                 }`}
               >
                 {editingId === conversation.id ? (
-                  <div className="p-3">
-                    <input
+                  <div className="p-4">
+                    <Input
                       type="text"
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
@@ -105,21 +108,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         if (e.key === 'Escape') handleCancelRename();
                       }}
                       onBlur={handleSaveRename}
-                      className="w-full bg-neutral-700 border border-neutral-600 rounded px-2 py-1 text-sm text-neutral-100 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none"
+                      className="body-sm"
                       autoFocus
                     />
                   </div>
                 ) : (
                   <button
                     onClick={() => onSelectConversation(conversation.id)}
-                    className="w-full text-left p-3 flex items-center justify-between"
+                    className="w-full text-left p-4 flex items-center justify-between group-hover:bg-transparent"
                   >
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="body-sm font-medium truncate mb-1">
                         {sanitizeDisplayText(conversation.title)}
                       </div>
-                      <div className="text-xs text-neutral-500 mt-1">
-                        {new Date(conversation.updatedAt).toLocaleDateString()}
+                      <div className="muted">
+                        {new Date(conversation.updatedAt).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          year: new Date(conversation.updatedAt).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                        })}
                       </div>
                     </div>
 
@@ -129,7 +136,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           e.stopPropagation();
                           handleRename(conversation);
                         }}
-                        className="p-1 hover:bg-neutral-700 rounded text-neutral-400 hover:text-neutral-200 transition-colors"
+                        className="p-2 hover:bg-neutral-700 rounded-lg text-neutral-400 hover:text-neutral-200 transition-colors focus-ring"
+                        aria-label="Rename conversation"
                       >
                         <Edit3 size={14} />
                       </button>
@@ -138,7 +146,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           e.stopPropagation();
                           onDeleteConversation(conversation.id);
                         }}
-                        className="p-1 hover:bg-neutral-700 rounded text-neutral-400 hover:text-red-400 transition-colors"
+                        className="p-2 hover:bg-neutral-700 rounded-lg text-neutral-400 hover:text-red-400 transition-colors focus-ring"
+                        aria-label="Delete conversation"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -152,14 +161,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-neutral-700">
-        <button
+      <div className="p-6 border-t border-neutral-700">
+        <Button
           onClick={onOpenSettings}
-          className="w-full flex items-center gap-3 px-4 py-3 text-neutral-300 hover:text-neutral-100 hover:bg-neutral-800 rounded-xl transition-colors"
+          variant="ghost"
+          size="md"
+          className="w-full justify-start"
         >
           <Settings size={18} />
           Settings
-        </button>
+        </Button>
       </div>
     </div>
   );

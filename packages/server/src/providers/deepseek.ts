@@ -85,12 +85,37 @@ export const deepseekProvider: ProviderAdapter = {
       throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: errorMessage };
     }
 
-    const data = await response.json();
+    let data: any;
+    try {
+      const responseText = await response.text();
+      console.log(`[DeepSeek] Response body length: ${responseText.length}`);
+      
+      if (!responseText || responseText.trim() === '') {
+        throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: 'Empty response from DeepSeek API' };
+      }
+      
+      data = JSON.parse(responseText);
+    } catch (jsonError: any) {
+      console.log(`[DeepSeek] JSON parsing error: ${jsonError.message}`);
+      throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: `Invalid JSON response from DeepSeek API: ${jsonError.message}` };
+    }
+    
+    // Validate response structure
+    if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+      console.log(`[DeepSeek] Invalid response structure:`, data);
+      throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: 'Invalid response structure from DeepSeek API' };
+    }
+    
+    const choice = data.choices[0];
+    if (!choice.message || !choice.message.content) {
+      console.log(`[DeepSeek] Missing message content in response:`, choice);
+      throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: 'No message content in DeepSeek API response' };
+    }
     
     return {
       message: {
         role: 'assistant',
-        content: data.choices[0]?.message?.content || 'No response generated',
+        content: choice.message.content,
         timestamp: Date.now()
       },
       usage: data.usage

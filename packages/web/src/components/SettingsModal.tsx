@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Eye, EyeOff, AlertTriangle, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Modal, Button, Input, Badge } from './ui';
 import useChat from '../state/chatStore';
 import { Provider } from '../lib/db';
 import { PROVIDER_NAMES, getModelsForProvider, getDefaultModelForProvider } from '../constants/models';
@@ -121,29 +122,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black bg-opacity-60" onClick={onClose} />
-      
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-neutral-900 text-neutral-100 shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-800">
-          <h2 className="text-lg font-semibold text-white">Keys & Settings</h2>
-          <button 
-            onClick={onClose}
-            className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-white"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        
-        <div className="p-6 space-y-6">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title="Keys & Settings"
+      size="xl"
+    >
+      <div className="space-y-6">
           {/* Security Warning */}
-          <div className="p-4 rounded-lg bg-amber-950 border border-amber-800">
-            <div className="flex items-start gap-2">
-              <AlertTriangle size={16} className="text-amber-400 mt-0.5 flex-shrink-0" />
-              <div className="text-sm">
-                <div className="font-medium text-amber-200 mb-1">Security Notice</div>
-                <div className="text-amber-300">
+          <div className="panel bg-amber-900/20 border-amber-700">
+            <div className="p-4 flex items-start gap-3">
+              <AlertTriangle size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="heading-sm text-amber-200 mb-2">Security Notice</div>
+                <div className="body-sm text-amber-300 leading-relaxed">
                   API keys are stored locally in your browser only. They are never sent anywhere except to AI providers directly. 
                   Git push is disabled to prevent accidental key exposure.
                 </div>
@@ -153,16 +145,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           
           {/* Provider Selection */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-base text-white">API Configuration</h3>
+            <h3 className="heading-sm text-neutral-100">API Configuration</h3>
             
             <div>
-              <label className="block text-sm font-medium mb-2 text-neutral-200">
+              <label className="block body-sm font-medium mb-3 text-neutral-200">
                 Provider
               </label>
               <select
                 value={selectedProvider}
                 onChange={(e) => setSelectedProvider(e.target.value as Provider)}
-                className="w-full p-3 bg-neutral-800 text-white border border-neutral-700 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full p-3 bg-neutral-800 text-neutral-100 border border-neutral-700 rounded-xl focus-ring text-lg"
               >
                 {Object.entries(PROVIDER_NAMES).map(([key, name]) => (
                   <option key={key} value={key}>{name}</option>
@@ -171,13 +163,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-neutral-200">
+              <label className="block body-sm font-medium mb-3 text-neutral-200">
                 Model
               </label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full p-3 bg-neutral-800 text-white border border-neutral-700 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full p-3 bg-neutral-800 text-neutral-100 border border-neutral-700 rounded-xl focus-ring text-lg"
               >
                 {getModelsForProvider(selectedProvider).map((model) => (
                   <option key={model} value={model}>{model}</option>
@@ -186,41 +178,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-2 text-neutral-200">
+              <label className="block body-sm font-medium mb-3 text-neutral-200 flex items-center gap-2">
                 API Key for {PROVIDER_NAMES[selectedProvider]}
                 {currentApiKey && currentApiKey.length > 10 && 
-                  <span className="ml-2 text-green-400 text-xs font-medium">SET</span>
+                  <Badge variant="success" size="sm">CONFIGURED</Badge>
                 }
               </label>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="relative">
-                  <input
+                  <Input
                     type={showKey ? 'text' : 'password'}
                     value={showKey ? currentApiKey : (currentApiKey ? maskKey(currentApiKey) : '')}
                     onChange={(e) => setCurrentApiKey(e.target.value)}
                     placeholder={`Enter your ${PROVIDER_NAMES[selectedProvider]} API key`}
-                    className="w-full p-3 pr-10 bg-neutral-800 text-white border border-neutral-700 rounded-lg font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="pr-12 font-mono text-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-neutral-700 rounded transition-colors text-neutral-400"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-neutral-700 rounded-lg transition-colors text-neutral-400 hover:text-neutral-200"
+                    aria-label={showKey ? 'Hide API key' : 'Show API key'}
                   >
                     {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <button
+                <div className="flex items-center gap-3">
+                  <Button
                     onClick={handleTestKey}
                     disabled={isTestingKey || !currentApiKey.trim()}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-700 disabled:text-neutral-500 text-white rounded transition-colors text-sm"
+                    variant="primary"
+                    size="sm"
                   >
                     {isTestingKey ? 'Testing...' : 'Test Key'}
-                  </button>
+                  </Button>
                   
                   {testResult && (
-                    <div className={`flex items-center gap-1 text-sm ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
+                    <div className={`flex items-center gap-2 body-sm ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
                       {testResult.ok ? <CheckCircle size={16} /> : <XCircle size={16} />}
                       <span>{testResult.message}</span>
                     </div>
@@ -232,20 +226,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           
           {/* App Settings */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-base text-white">App Settings</h3>
+            <h3 className="heading-sm text-neutral-100">App Settings</h3>
             
             <div>
-              <label className="block text-sm font-medium mb-2 text-neutral-200">Mode</label>
+              <label className="block body-sm font-medium mb-3 text-neutral-200">Mode</label>
               <select 
                 value={mode}
                 onChange={(e) => setMode(e.target.value as typeof mode)}
-                className="w-full p-3 bg-neutral-800 text-white border border-neutral-700 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full p-3 bg-neutral-800 text-neutral-100 border border-neutral-700 rounded-xl focus-ring text-lg"
               >
                 <option value="direct">Direct Chat</option>
                 <option value="research">Research Mode</option>
                 <option value="coach">Prompt Coach</option>
               </select>
-              <div className="text-xs mt-1 text-neutral-400">
+              <div className="muted mt-2">
                 {mode === 'research' && 'Provides structured research with plans and citations'}
                 {mode === 'coach' && 'Helps optimize prompts and asks clarifying questions'}
                 {mode === 'direct' && 'Standard conversational chat interface'}
@@ -258,16 +252,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 id="web_enabled"
                 checked={webEnabled}
                 onChange={(e) => setWebEnabled(e.target.checked)}
-                className="rounded"
+                className="w-4 h-4 text-blue-600 bg-neutral-800 border-neutral-600 rounded focus:ring-blue-500 focus:ring-2"
               />
-              <label htmlFor="web_enabled" className="text-sm font-medium text-neutral-200">
-                Web Search Enabled (Currently Stubbed)
+              <label htmlFor="web_enabled" className="body-sm font-medium text-neutral-200">
+                Web Search Enabled (Beta)
               </label>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2 text-neutral-200">
+                <label className="block body-sm font-medium mb-3 text-neutral-200">
                   Temperature: {temperature}
                 </label>
                 <input
@@ -277,51 +271,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   step="0.1"
                   value={temperature}
                   onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                  className="w-full"
+                  className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer slider"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2 text-neutral-200">Max Tokens</label>
-                <input
+                <label className="block body-sm font-medium mb-3 text-neutral-200">Max Tokens</label>
+                <Input
                   type="number"
                   min="100"
                   max="8000"
-                  value={maxTokens}
-                  onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-                  className="w-full p-2 bg-neutral-800 text-white border border-neutral-700 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  value={maxTokens.toString()}
+                  onChange={(e) => setMaxTokens(parseInt(e.target.value) || 1000)}
                 />
               </div>
             </div>
           </div>
           
           {/* Actions */}
-          <div className="flex justify-between items-center pt-4 border-t border-neutral-800">
-            <button
+          <div className="flex justify-between items-center pt-6 border-t border-neutral-700">
+            <Button
               onClick={clearAllData}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-red-900 hover:bg-opacity-20 rounded transition-colors text-red-400"
+              variant="ghost"
+              size="md"
+              className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
             >
               <Trash2 size={16} />
               Clear All Data
-            </button>
+            </Button>
             
-            <div className="flex gap-2">
-              <button 
+            <div className="flex gap-3">
+              <Button 
                 onClick={onClose}
-                className="px-4 py-2 border border-neutral-700 hover:bg-neutral-800 rounded transition-colors text-neutral-200"
+                variant="secondary"
+                size="md"
               >
                 Cancel
-              </button>
-              <button 
+              </Button>
+              <Button 
                 onClick={handleSave}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors text-white"
+                variant="primary"
+                size="md"
               >
                 Save Settings
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Bot, ExternalLink, ChevronDown, ChevronRight, Brain } from 'lucide-react';
+import { Badge, CodeBlock } from './ui';
 import { ChatMessage } from '../hooks/useChat';
 import { sanitizeDisplayText } from '../lib/stripEmojis';
 import { WebSearchResult } from '../lib/db';
@@ -25,36 +26,35 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
   const hasReasoning = message.metadata?.reasoning && message.metadata.reasoning.length > 0;
 
   return (
-    <div className={`flex gap-3 p-4`} style={{
-      backgroundColor: isUser ? 'hsl(var(--muted) / 0.3)' : 'hsl(var(--background))'
-    }}>
-      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center`} style={{
-        backgroundColor: isUser ? 'hsl(var(--primary))' : 'hsl(var(--secondary))',
-        color: isUser ? 'hsl(var(--primary-foreground))' : 'hsl(var(--secondary-foreground))'
-      }}>
+    <div className={`flex gap-4 p-6 ${isUser ? 'bg-neutral-900/30' : ''}`}>
+      {/* Avatar */}
+      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+        isUser 
+          ? 'bg-blue-600 text-white' 
+          : 'bg-neutral-800 text-neutral-300'
+      }`}>
         {isUser ? <User size={16} /> : <Bot size={16} />}
       </div>
       
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium mb-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
-          {isUser ? 'You' : 'Assistant'}
+      <div className="flex-1 min-w-0 max-w-3xl">
+        {/* Role badge */}
+        <div className="mb-3">
+          <Badge variant={isUser ? 'primary' : 'default'} size="sm">
+            {isUser ? 'You' : 'Assistant'}
+          </Badge>
         </div>
         
-        <div className="prose prose-sm max-w-none" style={{ color: 'hsl(var(--foreground))' }}>
-          {sanitizeDisplayText(message.content).split('\n').map((line, i) => (
-            <React.Fragment key={i}>
-              {formatLine(line)}
-              {i < message.content.split('\n').length - 1 && <br />}
-            </React.Fragment>
-          ))}
+        {/* Message content */}
+        <div className="body text-neutral-100 leading-relaxed">
+          {formatContent(sanitizeDisplayText(message.content))}
         </div>
         
         {/* Web Search Results */}
         {hasWebSearchResults && (
-          <div className="mt-3 border border-neutral-700 rounded-lg bg-neutral-800">
+          <div className="mt-6 panel">
             <button
               onClick={() => setShowSources(!showSources)}
-              className="w-full flex items-center justify-between p-3 text-sm text-neutral-300 hover:bg-neutral-750 transition-colors"
+              className="w-full flex items-center justify-between p-4 body-sm text-neutral-300 hover:bg-neutral-800 transition-colors rounded-t-2xl"
             >
               <span className="flex items-center gap-2">
                 <ExternalLink size={16} />
@@ -64,18 +64,18 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
             </button>
             
             {showSources && (
-              <div className="border-t border-neutral-700 p-3 space-y-3">
+              <div className="border-t border-neutral-700 p-4 space-y-4">
                 {message.metadata?.webSearchResults?.map((result, index) => (
-                  <div key={index} className="p-3 bg-neutral-750 rounded border border-neutral-600">
+                  <div key={index} className="card p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <h4 className="font-medium text-white text-sm mb-1">
+                        <h4 className="body-sm font-medium text-neutral-100 mb-2">
                           {result.title}
                         </h4>
-                        <p className="text-neutral-300 text-xs mb-2 leading-relaxed">
+                        <p className="muted mb-3 leading-relaxed">
                           {result.snippet}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-neutral-400">
+                        <div className="flex items-center gap-2 muted">
                           <span>{result.source}</span>
                           {result.publishDate && (
                             <>
@@ -89,10 +89,11 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
                         href={result.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-shrink-0 p-1 text-neutral-400 hover:text-blue-400 transition-colors"
+                        className="flex-shrink-0 p-2 text-neutral-400 hover:text-blue-400 transition-colors rounded-lg hover:bg-neutral-700"
                         title="Open in new tab"
+                        aria-label="Open source in new tab"
                       >
-                        <ExternalLink size={14} />
+                        <ExternalLink size={16} />
                       </a>
                     </div>
                   </div>
@@ -104,10 +105,10 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
 
         {/* AI Reasoning */}
         {hasReasoning && !isUser && (
-          <div className="mt-3 border border-neutral-700 rounded-lg bg-neutral-800">
+          <div className="mt-6 panel">
             <button
               onClick={() => setShowReasoning(!showReasoning)}
-              className="w-full flex items-center justify-between p-3 text-sm text-neutral-300 hover:bg-neutral-750 transition-colors"
+              className="w-full flex items-center justify-between p-4 body-sm text-neutral-300 hover:bg-neutral-800 transition-colors rounded-t-2xl"
             >
               <span className="flex items-center gap-2">
                 <Brain size={16} />
@@ -117,9 +118,9 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
             </button>
             
             {showReasoning && (
-              <div className="border-t border-neutral-700 p-3">
-                <div className="p-3 bg-neutral-750 rounded border border-neutral-600">
-                  <div className="text-neutral-300 text-sm leading-relaxed whitespace-pre-wrap">
+              <div className="border-t border-neutral-700 p-4">
+                <div className="card p-4">
+                  <div className="body-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">
                     {message.metadata?.reasoning}
                   </div>
                 </div>
@@ -128,34 +129,103 @@ export const Message: React.FC<MessageProps> = ({ message }) => {
           </div>
         )}
         
-        <div className="text-xs mt-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
-          {new Date(message.timestamp).toLocaleTimeString()}
+        {/* Timestamp */}
+        <div className="muted mt-4">
+          {new Date(message.timestamp).toLocaleTimeString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
         </div>
       </div>
     </div>
   );
 };
 
-const formatLine = (line: string): React.ReactNode => {
+const formatContent = (content: string): React.ReactNode => {
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    
+    // Code block detection
+    if (line.trim().startsWith('```')) {
+      const language = line.trim().slice(3);
+      const codeLines: string[] = [];
+      i++; // Skip the opening ```
+      
+      // Collect code lines until closing ```
+      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      
+      if (codeLines.length > 0) {
+        elements.push(
+          <CodeBlock 
+            key={`code-${i}`}
+            code={codeLines.join('\n')} 
+            language={language || undefined}
+            className="my-4"
+          />
+        );
+      }
+      i++; // Skip the closing ```
+      continue;
+    }
+    
+    // Inline code detection
+    if (line.includes('`') && !line.includes('```')) {
+      const parts = line.split('`');
+      const formatted = parts.map((part, idx) => 
+        idx % 2 === 1 ? (
+          <code key={idx} className="px-1.5 py-0.5 bg-neutral-800 text-neutral-100 rounded text-sm font-mono">
+            {part}
+          </code>
+        ) : formatTextLine(part)
+      );
+      elements.push(<div key={i} className="my-1">{formatted}</div>);
+      i++;
+      continue;
+    }
+    
+    // Regular line formatting
+    elements.push(
+      <div key={i} className="my-1">
+        {formatTextLine(line)}
+      </div>
+    );
+    i++;
+  }
+
+  return <div>{elements}</div>;
+};
+
+const formatTextLine = (line: string): React.ReactNode => {
   // Bold text
   if (line.includes('**')) {
     const parts = line.split('**');
     return parts.map((part, i) => 
-      i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+      i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : part
     );
   }
   
   // Bullet points
   if (line.trim().startsWith('- ') || line.trim().startsWith('• ')) {
-    return <span className="block ml-4">{line}</span>;
+    return <div className="ml-4 flex"><span className="mr-2">•</span><span>{line.trim().slice(2)}</span></div>;
   }
   
-  // Code blocks (simple detection)
-  if (line.trim().startsWith('```')) {
-    return <code className="block p-2 rounded text-sm font-mono" style={{
-      backgroundColor: 'hsl(var(--muted))'
-    }}>{line}</code>;
+  // Headers
+  if (line.trim().startsWith('# ')) {
+    return <h1 className="heading-lg mt-6 mb-4">{line.trim().slice(2)}</h1>;
+  }
+  if (line.trim().startsWith('## ')) {
+    return <h2 className="heading-md mt-4 mb-3">{line.trim().slice(3)}</h2>;
+  }
+  if (line.trim().startsWith('### ')) {
+    return <h3 className="heading-sm mt-4 mb-2">{line.trim().slice(4)}</h3>;
   }
   
-  return line;
+  return line || <br />;
 };

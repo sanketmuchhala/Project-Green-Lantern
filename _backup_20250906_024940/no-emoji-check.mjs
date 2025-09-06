@@ -8,13 +8,12 @@ import emojiRegex from 'emoji-regex';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.join(__dirname, '..');
 
-const scanDirs = ['packages/web/src', 'packages/server/src', 'packages/types/src', 'scripts', 'public', 'docs', '.'];
-const fileExtensions = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.md', '.json', '.html', '.sh'];
-const scanFiles = ['README.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'package.json'];
+const scanDirs = ['web/src', 'server/src', 'public', 'docs'];
+const fileExtensions = ['.ts', '.tsx', '.js', '.jsx', '.md', '.json', '.html'];
 
 // Common emoji patterns to check beyond the regex
 const commonEmojiPatterns = [
-  /:\w+:/g,           // emoji shortcodes
+  /:\w+:/g,           // :emoji_name:
   /[\u{1F600}-\u{1F64F}]/gu,  // emoticons
   /[\u{1F300}-\u{1F5FF}]/gu,  // symbols & pictographs
   /[\u{1F680}-\u{1F6FF}]/gu,  // transport & map
@@ -95,32 +94,19 @@ class EmojiChecker {
   }
 
   run() {
-    console.log('Scanning for emoji violations...');
+    console.log('🔍 Scanning for emoji violations...');
     
-    // Scan directories
     for (const scanDir of scanDirs) {
       const fullPath = path.join(projectRoot, scanDir);
-      if (fs.existsSync(fullPath)) {
-        if (scanDir === '.') {
-          // For root directory, only scan specific files
-          for (const fileName of scanFiles) {
-            const filePath = path.join(fullPath, fileName);
-            if (fs.existsSync(filePath)) {
-              this.checkFile(filePath);
-            }
-          }
-        } else {
-          this.scanDirectory(fullPath);
-        }
-      }
+      this.scanDirectory(fullPath);
     }
     
     if (this.violationCount === 0) {
-      console.log('No emoji violations found!');
+      console.log('✅ No emoji violations found!');
       return 0; // Success
     }
 
-    console.log(`Found ${this.violationCount} emoji violations:\n`);
+    console.log(`❌ Found ${this.violationCount} emoji violations:\n`);
     
     // Group violations by file
     const violationsByFile = {};
@@ -133,7 +119,7 @@ class EmojiChecker {
 
     // Print violations
     for (const [file, violations] of Object.entries(violationsByFile)) {
-      console.log(`File: ${file}:`);
+      console.log(`📄 ${file}:`);
       violations.forEach(v => {
         console.log(`  Line ${v.line}: ${v.content}`);
         console.log(`  Emojis: ${v.emojis.join(', ')}`);
@@ -141,7 +127,7 @@ class EmojiChecker {
       console.log();
     }
 
-    console.log('EMOJI POLICY VIOLATION: Remove all emojis from source code.');
+    console.log('❌ EMOJI POLICY VIOLATION: Remove all emojis from source code.');
     console.log('Use text alternatives or professional icons instead.');
     
     return 1; // Error
