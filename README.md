@@ -188,7 +188,7 @@ graph LR
     classDef router fill:#2D3436,stroke:#636E72,stroke-width:2px,color:white
     
     class O1,O2,O3,O4 openai
-    class A1,A2,A3 anthropic  
+    class A1,A2,A3 anthropic
     class G1,G2,G3 google
     class D1,D2,D3 deepseek
     class ROUTER,USER router

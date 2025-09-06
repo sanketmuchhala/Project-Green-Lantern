@@ -6,6 +6,8 @@ import { Button } from './ui';
 import useChat from '../state/chatStore';
 import { PROVIDER_NAMES, getDefaultModelForProvider } from '../constants/models';
 import type { Provider } from '../lib/db';
+import { logTurn } from '../promptops/logger';
+import { enrichWithLocalTelemetry } from '../promptops/local/telemetry';
 
 interface ChatProps {
   onOpenSettings: () => void;
@@ -75,6 +77,7 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     if (!input.trim() || isLoading || !hasValidKey || !conversation) return;
 
     const currentInput = input.trim();
+    const startTime = Date.now(); // For latency calculation
     setInput('');
     setIsLoading(true);
 
@@ -114,15 +117,57 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       }
 
       const data = await response.json();
+      const latency_ms = Date.now() - startTime;
       
       // Add assistant message with web search metadata and reasoning
       await addMessage('assistant', data.message.content, {
         webSearchResults: data.webSearchResults,
         reasoning: data.reasoning
       });
+
+      // PromptScope logging
+      const eventBase = {
+        corr_id: data.id || crypto.randomUUID(),
+        session_id: conversation.id, // Assuming conversation.id can be session_id
+        provider: conversationProvider,
+        model: conversation.model,
+        settings: {
+          temperature: conversation.settings.temperature,
+          max_tokens: conversation.settings.max_tokens,
+        },
+        prompt: {
+          prompt_chars: currentInput.length, // Character count of the user's prompt
+          // Assuming system_tokens, user_tokens, retrieved_tokens are not directly available from API response
+        },
+        usage: data.usage, // Assuming usage stats are in the response
+        timing: {
+          ...data.timing, // Assuming timing stats are in the response
+          latency_ms,
+        },
+        result: { status: "ok", http: response.status },
+        safety: {
+          guard_triggered: data.safety?.guard_triggered,
+          pii_blocked: data.safety?.pii_blocked,
+        },
+        quality: {
+          user_rating: data.quality?.user_rating,
+          judge_score: data.quality?.judge_score,
+        },
+        business: {
+          // task: conversation.settings.task, // Assuming task can be derived from conversation settings
+        },
+        runtime: data.runtime, // Assuming runtime metrics are in the response
+        sampling: data.sampling, // Assuming sampling metrics are in the response
+        token_timestamps_ms: data.token_timestamps_ms, // Assuming token timestamps are in the response
+        kv_cache: data.kv_cache, // Assuming kv_cache metrics are in the response
+        hardware: data.hardware, // Assuming hardware metrics are in the response
+        energy: data.energy, // Assuming energy metrics are in the response
+      };
+      enrichWithLocalTelemetry(eventBase).then(logTurn);
       
     } catch (error: any) {
       console.error('Chat error:', error);
+      const latency_ms = Date.now() - startTime;
       
       let errorContent = `Error: ${error.message}`;
       
@@ -138,6 +183,24 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       }
       
       await addMessage('assistant', errorContent);
+
+      // PromptScope logging for errors
+      const eventBase = {
+        corr_id: crypto.randomUUID(),
+        session_id: conversation.id,
+        provider: conversationProvider,
+        model: conversation.model,
+        settings: {
+          temperature: conversation.settings.temperature,
+          max_tokens: conversation.settings.max_tokens,
+        },
+        timing: { latency_ms },
+        result: { status: "error", http: error.response?.status },
+        // Include any other relevant error details from the API response if available
+        // e.g., safety: error.safety, quality: error.quality, etc.
+      };
+      enrichWithLocalTelemetry(eventBase).then(logTurn);
+
     } finally {
       setIsLoading(false);
     }

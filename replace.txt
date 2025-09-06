@@ -1,0 +1,2 @@
+regex:(?mi)^Co-authored-by:\s*Claude\s+Code\s*<[^>]+>\s*$==>
+regex:(?mi)\bClaude\s+Code\b==>

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { Chat } from './components/Chat';
 import { SettingsModal } from './components/SettingsModal';
 import useChat from './state/chatStore';
 import { initializeDatabase } from './lib/db';
+import PromptScopeRoute from './routes/PromptScopeRoute';
+
 
 function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -62,7 +65,7 @@ function App() {
     );
   }
 
-  return (
+  const MainLayout = ({ children }: { children: React.ReactNode }) => (
     <div className="flex h-screen bg-neutral-950 text-white">
       <Sidebar
         conversations={conversations}
@@ -76,14 +79,33 @@ function App() {
         onRenameChat={updateConversationTitle}
         onOpenSettings={() => setIsSettingsOpen(true)}
       />
-      
-      <Chat onOpenSettings={() => setIsSettingsOpen(true)} />
-      
+      {children}
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
     </div>
+  );
+
+  const showPromptScopeLink = (localStorage.getItem("PROMPTOPS_ENABLED")||"true") !== "false";
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={
+          <MainLayout>
+            <Chat onOpenSettings={() => setIsSettingsOpen(true)} />
+          </MainLayout>
+        } />
+        <Route path="/promptscope" element={<PromptScopeRoute />} />
+        
+      </Routes>
+      {showPromptScopeLink && (
+        <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 100 }}>
+          <Link to="/promptscope" className="text-neutral-300 hover:text-neutral-100 px-3 bg-neutral-800 rounded-md py-1">PromptScope</Link>
+        </div>
+      )}
+    </Router>
   );
 }
 
