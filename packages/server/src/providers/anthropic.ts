@@ -58,7 +58,24 @@ export const anthropicProvider: ProviderAdapter = {
       throw { code: 'HTTP', status: response.status, provider: 'anthropic', message: errorMessage };
     }
 
-    const data = await response.json();
+    let data: any;
+    try {
+      const responseText = await response.text();
+      
+      if (!responseText || responseText.trim() === '') {
+        throw { code: 'HTTP', status: response.status, provider: 'anthropic', message: 'Empty response from Anthropic API' };
+      }
+      
+      data = JSON.parse(responseText);
+      
+      if (!data.content || !Array.isArray(data.content) || data.content.length === 0) {
+        throw { code: 'HTTP', status: response.status, provider: 'anthropic', message: 'Invalid response structure from Anthropic API' };
+      }
+      
+    } catch (jsonError: any) {
+      console.log(`[Anthropic] JSON parsing error: ${jsonError.message}`);
+      throw { code: 'HTTP', status: response.status, provider: 'anthropic', message: `Invalid JSON response from Anthropic API: ${jsonError.message}` };
+    }
     
     return {
       message: {

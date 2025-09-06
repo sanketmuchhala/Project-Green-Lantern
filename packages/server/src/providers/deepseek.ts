@@ -26,26 +26,42 @@ export const deepseekProvider: ProviderAdapter = {
     const baseUrl = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com';
     console.log(`[DeepSeek] Making request to ${baseUrl}/v1/chat/completions with model ${model}`);
     
+    // Create AbortController for timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
     let response: Response;
     try {
       response = await fetch(`${baseUrl}/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${trimmedKey}`
-      },
-      body: JSON.stringify({
-        model,
-        messages: messages.map(msg => ({
-          role: msg.role,
-          content: msg.content
-        })),
-        temperature,
-        max_tokens,
-        stream: false
-      })
-    });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${trimmedKey}`,
+          'User-Agent': 'BYOK-Research-Copilot/1.0'
+        },
+        body: JSON.stringify({
+          model,
+          messages: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          temperature,
+          max_tokens,
+          stream: false
+        }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
     } catch (networkError: any) {
+      clearTimeout(timeoutId);
+      
+      if (networkError.name === 'AbortError') {
+        console.log(`[DeepSeek] Request timeout after 30 seconds`);
+        throw { code: 'HTTP', status: 408, provider: 'deepseek', message: 'Request timeout - DeepSeek API took too long to respond' };
+      }
+      
       console.log(`[DeepSeek] Network error - ${networkError.message}`);
       throw { code: 'HTTP', status: 0, provider: 'deepseek', message: `Network error: ${networkError.message}` };
     }
@@ -94,7 +110,28 @@ export const deepseekProvider: ProviderAdapter = {
         throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: 'Empty response from DeepSeek API' };
       }
       
-      data = JSON.parse(responseText);
+      // Log first 200 chars for debugging (without exposing sensitive data)
+      const preview = responseText.length > 200 ? responseText.substring(0, 200) + '...' : responseText;
+      console.log(`[DeepSeek] Response preview: ${preview}`);
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError: any) {
+        console.log(`[DeepSeek] JSON parsing failed. Raw response: ${responseText}`);
+        
+        // Check if response looks like HTML (common error page response)
+        if (responseText.trim().startsWith('<')) {
+          throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: 'DeepSeek API returned HTML instead of JSON - possible server error or maintenance' };
+        }
+        
+        // Check if response looks like plain text error
+        if (!responseText.includes('{') && !responseText.includes('[')) {
+          throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: `DeepSeek API error: ${responseText}` };
+        }
+        
+        throw parseError;
+      }
+      
     } catch (jsonError: any) {
       console.log(`[DeepSeek] JSON parsing error: ${jsonError.message}`);
       throw { code: 'HTTP', status: response.status, provider: 'deepseek', message: `Invalid JSON response from DeepSeek API: ${jsonError.message}` };

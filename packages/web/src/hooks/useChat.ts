@@ -142,11 +142,51 @@ export const useChat = () => {
         })
       });
 
+      // Handle non-OK responses
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText);
+              if (errorData.error) {
+                errorMessage = errorData.error;
+              } else if (errorData.details) {
+                errorMessage = errorData.details;
+              }
+            } catch {
+              // If JSON parsing fails, use the raw text
+              errorMessage = errorText;
+            }
+          }
+        } catch {
+          // If reading response body fails, use the original error
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      // Handle successful response with robust JSON parsing
+      let data;
+      try {
+        const responseText = await response.text();
+        
+        if (!responseText || responseText.trim() === '') {
+          throw new Error('Empty response from server');
+        }
+        
+        data = JSON.parse(responseText);
+        
+        if (!data.message || !data.message.content) {
+          throw new Error('Invalid response format: missing message content');
+        }
+        
+      } catch (jsonError: any) {
+        console.error('JSON parsing error:', jsonError);
+        throw new Error(`Server response parsing failed: ${jsonError.message}`);
+      }
       
       const assistantMessage: ChatMessage = {
         role: 'assistant',

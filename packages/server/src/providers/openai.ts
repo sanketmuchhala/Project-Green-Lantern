@@ -48,7 +48,24 @@ export const openaiProvider: ProviderAdapter = {
       throw { code: 'HTTP', status: response.status, provider: 'openai', message: errorMessage };
     }
 
-    const data = await response.json();
+    let data: any;
+    try {
+      const responseText = await response.text();
+      
+      if (!responseText || responseText.trim() === '') {
+        throw { code: 'HTTP', status: response.status, provider: 'openai', message: 'Empty response from OpenAI API' };
+      }
+      
+      data = JSON.parse(responseText);
+      
+      if (!data.choices || !Array.isArray(data.choices) || data.choices.length === 0) {
+        throw { code: 'HTTP', status: response.status, provider: 'openai', message: 'Invalid response structure from OpenAI API' };
+      }
+      
+    } catch (jsonError: any) {
+      console.log(`[OpenAI] JSON parsing error: ${jsonError.message}`);
+      throw { code: 'HTTP', status: response.status, provider: 'openai', message: `Invalid JSON response from OpenAI API: ${jsonError.message}` };
+    }
     
     return {
       message: {
