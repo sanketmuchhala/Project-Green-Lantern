@@ -57,6 +57,39 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// DeepSeek key test endpoint
+app.get('/v1/ping', async (req, res) => {
+  if (req.query.provider === 'deepseek') {
+    const apiKey = req.query.api_key as string || req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!apiKey) {
+      return res.json({ ok: false, message: 'API key required' });
+    }
+    
+    try {
+      const testRequest: ChatRequest = {
+        provider: 'deepseek',
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: 'ping' }],
+        api_key: apiKey,
+        temperature: 0.1,
+        max_tokens: 5
+      };
+      
+      await deepseekProvider.chat(testRequest);
+      res.json({ ok: true });
+    } catch (error: any) {
+      if (error.code === 'AUTH') {
+        res.json({ ok: false, message: 'Invalid DeepSeek API key' });
+      } else {
+        res.json({ ok: false, message: 'Invalid key or DeepSeek error' });
+      }
+    }
+  } else {
+    res.status(400).json({ error: 'Only DeepSeek provider supported on this endpoint' });
+  }
+});
+
 // Key validation endpoint
 app.post('/v1/ping', async (req, res) => {
   try {
