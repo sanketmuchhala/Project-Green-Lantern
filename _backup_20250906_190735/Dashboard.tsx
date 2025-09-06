@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { getEvents } from "./logger";
+import { getRecent } from "./db";
 import { summarize } from "./kpis";
 import { KPI, Table } from "./components/Cards";
 import { LineChart, BarStack, DoughnutChart, ScatterChart, Gauge } from "./components/Charts";
 import { byDay, sumByDay, modelRollup } from "./analytics";
 import { hallucinationRisk } from "./hallucination";
 import { estimateCost } from "./pricing";
-import EventLatency from "./components/EventLatency";
-import SystemMetrics from "./components/SystemMetrics";
 
 export default function PromptScopeDashboard() {
   const [rows, setRows] = useState<any[]>([]);
@@ -16,7 +14,7 @@ export default function PromptScopeDashboard() {
 
   useEffect(() => {
     (async () => {
-      const r = await getEvents();
+      const r = await getRecent(2000);
       for (const e of r) {
         const h = hallucinationRisk(e);
         e._riskScore = h.score;
@@ -126,8 +124,6 @@ export default function PromptScopeDashboard() {
                 <h3 className="text-lg font-semibold mb-2">Model Performance (Quality vs. Cost)</h3>
                 <ScatterChart points={modelCompareData.map(r => ({ x: r.avg_cost, y: r.avg_pqs, r: Math.log(r.N + 1) * 4, label: r.model, series: r.model }))} seriesKey="series" />
               </div>
-              <EventLatency rows={rows} />
-              <SystemMetrics />
             </div>
 
             {/* Right Column (Sidebar) */}

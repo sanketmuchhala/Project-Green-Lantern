@@ -46,30 +46,28 @@ export async function chatWithOllama(opts: {
 }) {
   const baseURL = normBaseURL(opts.config.baseURL);
   const pm = opts.config.performanceMode !== false; // default ON
-  const stream = opts.config.stream ?? true; // DEFAULT STREAMING ON for local
   
   const options: any = {
-    temperature: opts.config.temperature ?? 0.1,  // Lower for faster, more focused responses
-    num_ctx: opts.config.num_ctx ?? (pm ? 512 : 2048),  // MUCH smaller context for speed
+    temperature: opts.config.temperature ?? 0.2,
+    num_ctx: opts.config.num_ctx ?? (pm ? 1024 : 4096),  // Reduced to 1024 for performance
     ...(typeof opts.config.max_tokens === "number"
-        ? { num_predict: Math.min(opts.config.max_tokens, pm ? 64 : 256) }
-        : (pm ? { num_predict: 64 } : {})),  // Very short responses for speed
-    top_p: opts.config.top_p ?? (pm ? 0.7 : undefined),  // Lower sampling for speed
-    top_k: opts.config.top_k ?? (pm ? 10 : undefined),   // Much fewer tokens for speed
-    num_thread: opts.config.num_thread ?? (pm ? 2 : undefined),  // Only 2 threads to avoid overload
+        ? { num_predict: Math.min(opts.config.max_tokens, pm ? 128 : 512) }
+        : (pm ? { num_predict: 128 } : {})),  // Reduced to 128 tokens
+    top_p: opts.config.top_p ?? (pm ? 0.8 : undefined),  // Lower sampling diversity
+    top_k: opts.config.top_k ?? (pm ? 20 : undefined),   // Fewer top tokens
+    num_thread: opts.config.num_thread ?? (pm ? 2 : undefined),  // Only 2 threads
     use_mmap: opts.config.use_mmap ?? true,
     use_mlock: opts.config.use_mlock ?? false,
-    num_batch: pm ? 128 : undefined,  // Much smaller batch
-    repeat_penalty: 1.05,  // Lower penalty
-    num_gpu: 0,  // Force CPU only
-    low_vram: true  // Use less VRAM
+    num_batch: pm ? 256 : undefined,  // Smaller batch size
+    repeat_penalty: 1.1,  // Prevent repetition
+    num_gpu: 0  // Force CPU-only for stability
   };
 
   const body: any = {
     model: opts.config.model,
     messages: opts.messages,
     options,
-    stream
+    stream: opts.config.stream ?? false
   };
 
   let lastErr: any;
@@ -90,34 +88,7 @@ export async function chatWithOllama(opts: {
         throw new Error(`Ollama HTTP ${res.status}: ${txt.slice(0, 240)}`);
       }
       
-      if (stream) {
-        // Handle streaming response by aggregating chunks
-        let text = "";
-        const reader = res.body?.getReader();
-        if (reader) {
-          const decoder = new TextDecoder();
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            
-            // Decode the chunk and parse streaming JSON responses
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter(line => line.trim());
-            
-            for (const line of lines) {
-              try {
-                const json = JSON.parse(line);
-                if (json.message?.content) {
-                  text += json.message.content;
-                }
-              } catch {
-                // Skip invalid JSON lines
-              }
-            }
-          }
-          return { text, usage: null, raw: null };
-        }
-        // Fallback if no reader available
+      if (body.stream) {
         const txt = await res.text();
         return { text: txt, usage: null, raw: null };
       }

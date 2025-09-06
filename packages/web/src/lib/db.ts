@@ -44,6 +44,28 @@ export interface Conversation {
   };
 }
 
+export interface PromptEvent {
+  id: string;
+  ts: string;
+  corr_id: string;
+  session_id?: string;
+  provider: string;
+  model: string;
+  settings?: any;
+  business?: any;
+  prompt?: any;
+  usage?: any;
+  safety?: any;
+  quality?: any;
+  timing?: {
+    latency_ms: number;
+    ttft_ms?: number;
+  };
+  result: {
+    status: 'ok' | 'error';
+  };
+}
+
 export interface AppSettings {
   id: number;
   selectedProvider: Provider;
@@ -55,11 +77,17 @@ export interface AppSettings {
   // Local Ollama specific settings
   baseURL?: string;
   num_ctx?: number;
+  performanceMode?: boolean;
+  numPredict?: number;
+  topP?: number;
+  topK?: number;
+  numThread?: number;
 }
 
 export class ChatDatabase extends Dexie {
   conversations!: Table<Conversation>;
   settings!: Table<AppSettings>;
+  events!: Table<PromptEvent>;
 
   constructor() {
     super('ChatDatabase');
@@ -67,6 +95,12 @@ export class ChatDatabase extends Dexie {
     this.version(1).stores({
       conversations: 'id, title, provider, model, createdAt, updatedAt',
       settings: '++id'
+    });
+    
+    this.version(2).stores({
+      conversations: 'id, title, provider, model, createdAt, updatedAt',
+      settings: '++id',
+      events: 'id, ts, corr_id, provider, model'
     });
   }
 }

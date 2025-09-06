@@ -32,11 +32,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [mode, setMode] = useState<'direct' | 'research' | 'coach'>('direct');
   // Local Ollama specific fields
   const [baseURL, setBaseURL] = useState('http://localhost:11434');
-  const [numCtx, setNumCtx] = useState(512);   // Ultra-fast context
+  const [numCtx, setNumCtx] = useState(1024);  // Much lower default
   const [performanceMode, setPerformanceMode] = useState(true);
-  const [numPredict, setNumPredict] = useState(64);   // Very short for speed
-  const [topP, setTopP] = useState(0.7);   // Lower sampling
-  const [topK, setTopK] = useState(10);    // Much fewer tokens
+  const [numPredict, setNumPredict] = useState(128);  // Much lower default
+  const [topP, setTopP] = useState(0.8);  // Lower sampling
+  const [topK, setTopK] = useState(20);   // Fewer tokens
   const [numThread, setNumThread] = useState(2);  // Only 2 threads
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -51,12 +51,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setWebEnabled(settings.web_enabled);
       setMode(settings.mode);
       setBaseURL(settings.baseURL || 'http://localhost:11434');
-      setNumCtx(settings.num_ctx || 512);   // Ultra-fast context
+      setNumCtx(settings.num_ctx || 1024);  // Lower default
       setPerformanceMode(settings.performanceMode !== false);
-      setNumPredict(settings.numPredict || 64);   // Very short for speed
-      setTopP(settings.topP || 0.7);   // Lower sampling
-      setTopK(settings.topK || 10);    // Much fewer tokens
-      setNumThread(settings.numThread || 2);  // Only 2 threads
+      setNumPredict(settings.numPredict || 128);  // Lower default
+      setTopP(settings.topP || 0.8);  // Lower default
+      setTopK(settings.topK || 20);   // Lower default
+      setNumThread(settings.numThread || 2);  // Lower default
     } else if (isOpen) {
       loadSettings();
     }
@@ -109,45 +109,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     onClose();
   };
 
-  // Helper function to check if model exists in Ollama
-  const ensureLocalModelExists = async (baseURL: string, model: string) => {
-    try {
-      const response = await fetch(`${baseURL.replace(/\/+$/, '')}/api/tags`);
-      const data = await response.json();
-      const models = data.models || [];
-      return models.some((m: any) => m.model === model || m.name === model);
-    } catch {
-      return false;
-    }
-  };
-
   const handleTestKey = async () => {
     if (selectedProvider === 'local-ollama') {
-      // For local-ollama, test connection and model availability
+      // For local-ollama, test the connection to Ollama server
       setIsTestingKey(true);
       setTestResult(null);
       
       try {
-        // First test connection
         const response = await fetch(`/v1/ping?provider=local-ollama&baseURL=${encodeURIComponent(baseURL)}`);
         const result = await response.json();
-        
-        if (!result.ok) {
-          setTestResult(result);
-          return;
-        }
-
-        // Then check if selected model exists
-        const modelExists = await ensureLocalModelExists(baseURL, selectedModel);
-        if (!modelExists) {
-          setTestResult({ 
-            ok: false, 
-            message: `Model not installed: ${selectedModel}. Install with: ollama pull ${selectedModel}` 
-          });
-          return;
-        }
-
-        setTestResult({ ok: true, message: `Connected successfully. Model ${selectedModel} is available.` });
+        setTestResult(result);
       } catch (error) {
         setTestResult({ ok: false, message: 'Connection test failed: ' + (error as Error).message });
       } finally {
@@ -215,7 +186,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           {/* Section 1: API Keys */}
           <div className="space-y-4">
             <h3 className="heading-sm text-neutral-100 flex items-center gap-2">
-              API Keys
+              🔑 API Keys
               <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full">Cloud Providers</span>
             </h3>
             
@@ -390,7 +361,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           {/* Section 2: Local Models */}
           <div className="space-y-4">
             <h3 className="heading-sm text-neutral-100 flex items-center gap-2">
-              Local Models
+              🏠 Local Models
               <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full">Ollama</span>
             </h3>
             
@@ -425,11 +396,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <option key={model} value={model}>{model}</option>
                     ))}
                   </select>
-                  {selectedProvider === 'local-ollama' && (
-                    <div className="muted mt-2">
-                      See installed models: <code className="bg-neutral-700 px-1 rounded">ollama list</code>
-                    </div>
-                  )}
                 </div>
               </div>
             
@@ -454,20 +420,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 
                 <div>
                   <label className="block body-sm font-medium mb-3 text-neutral-200">
-                    Context Size (num_ctx): {performanceMode ? Math.min(numCtx, 512) : numCtx}
+                    Context Size (num_ctx): {performanceMode ? Math.min(numCtx, 1024) : numCtx}
                   </label>
                   <input
                     type="range"
-                    min="256"
-                    max="2048" 
-                    step="256"
+                    min="1024"
+                    max="32768"
+                    step="1024"
                     value={numCtx}
                     onChange={(e) => setNumCtx(parseInt(e.target.value))}
                     className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer slider"
                     disabled={performanceMode}
                   />
                   <div className="muted mt-2">
-                    {performanceMode ? 'Limited to 512 in Performance Mode for INSTANT responses' : 'Context window size for the model'}
+                    {performanceMode ? 'Limited to 1024 in Performance Mode for ultra-fast responses' : 'Context window size for the model'}
                   </div>
                 </div>
                 
@@ -484,7 +450,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       Performance Mode (Recommended)
                     </label>
                     <div className="muted mt-1">
-                      ULTRA-FAST settings: 512 context, 64 output, 2 threads - instant responses, minimal lag
+                      Ultra-conservative settings for M2: 1024 context, 128 output, 2 threads max - prevents system overload
                     </div>
                   </div>
                 </div>
@@ -504,13 +470,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block body-sm font-medium mb-2 text-neutral-200">
-                            Max Output (num_predict): {performanceMode ? Math.min(numPredict, 64) : numPredict}
+                            Max Output (num_predict): {performanceMode ? Math.min(numPredict, 128) : numPredict}
                           </label>
                           <input
                             type="range"
-                            min="32"
-                            max="512"
-                            step="32"
+                            min="64"
+                            max="2048"
+                            step="64"
                             value={numPredict}
                             onChange={(e) => setNumPredict(parseInt(e.target.value))}
                             className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer slider"
@@ -525,7 +491,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                           <input
                             type="range"
                             min="1"
-                            max="4"
+                            max="16"
                             step="1"
                             value={numThread}
                             onChange={(e) => setNumThread(parseInt(e.target.value))}
@@ -538,7 +504,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block body-sm font-medium mb-2 text-neutral-200">
-                            Top P: {performanceMode ? Math.min(topP, 0.7) : topP}
+                            Top P: {performanceMode ? Math.min(topP, 0.8) : topP}
                           </label>
                           <input
                             type="range"
@@ -554,12 +520,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         
                         <div>
                           <label className="block body-sm font-medium mb-2 text-neutral-200">
-                            Top K: {performanceMode ? Math.min(topK, 10) : topK}
+                            Top K: {performanceMode ? Math.min(topK, 20) : topK}
                           </label>
                           <input
                             type="range"
-                            min="5"
-                            max="20"
+                            min="1"
+                            max="100"
                             step="1"
                             value={topK}
                             onChange={(e) => setTopK(parseInt(e.target.value))}

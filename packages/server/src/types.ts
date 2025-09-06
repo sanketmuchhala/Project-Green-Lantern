@@ -17,6 +17,12 @@ export interface ChatRequest {
   // Local Ollama specific fields
   baseURL?: string;
   num_ctx?: number;
+  performanceMode?: boolean;
+  top_p?: number;
+  top_k?: number;
+  num_thread?: number;
+  use_mmap?: boolean;
+  use_mlock?: boolean;
 }
 
 export interface ChatResponse {
