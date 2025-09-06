@@ -247,16 +247,24 @@ const useChat = create<ChatStore>((set, get) => ({
     }
     
     try {
-      const response = await fetch('/v1/ping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider, model, api_key: apiKey })
-      });
+      let response: Response;
+      
+      // Use specific GET endpoint for DeepSeek
+      if (provider === 'deepseek') {
+        response = await fetch(`/v1/ping?provider=deepseek&api_key=${encodeURIComponent(apiKey)}`);
+      } else {
+        // Use existing POST endpoint for other providers
+        response = await fetch('/v1/ping', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider, model, api_key: apiKey })
+        });
+      }
       
       const data = await response.json();
       
       if (response.ok && data.ok) {
-        return { ok: true, message: data.message };
+        return { ok: true, message: data.message || `API key valid for ${provider}` };
       } else {
         return { ok: false, message: data.message || 'API key test failed' };
       }
