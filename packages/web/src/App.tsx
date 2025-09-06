@@ -59,7 +59,7 @@ function App() {
       <div className="flex items-center justify-center h-screen bg-neutral-950 text-white">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p>Initializing BYOK Copilot...</p>
+          <p>Initializing Lantern...</p>
         </div>
       </div>
     );
@@ -101,8 +101,10 @@ function App() {
         
       </Routes>
       {showPromptScopeLink && (
-        <div style={{ position: 'fixed', top: '1rem', right: '1rem', zIndex: 100 }}>
-          <Link to="/promptscope" className="text-neutral-300 hover:text-neutral-100 px-3 bg-neutral-800 rounded-md py-1">PromptScope</Link>
+        <div className="fixed top-4 right-4 z-10">
+          <Link to="/promptscope" className="text-neutral-300 hover:text-neutral-100 px-3 py-1 bg-neutral-900 border border-neutral-700 rounded-lg transition-colors hover:bg-neutral-800">
+            Prompt Analytics
+          </Link>
         </div>
       )}
     </Router>

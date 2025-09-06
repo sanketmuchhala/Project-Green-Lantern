@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-4 border-b border-neutral-800">
         <div className="flex items-center gap-2 mb-3">
           <MessageSquare size={20} className="text-blue-400" />
-          <span className="font-semibold text-white">BYOK Copilot</span>
+          <span className="font-semibold text-white">Lantern</span>
         </div>
         
         <button 

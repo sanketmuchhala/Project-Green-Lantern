@@ -19,38 +19,63 @@
 }
 
 @layer components {
-  /* Typography utilities */
+  /* Enhanced Typography utilities */
   .heading-sm {
-    @apply text-xl font-semibold leading-7;
+    @apply text-xl font-semibold leading-7 text-neutral-100;
   }
   
   .heading-md {
-    @apply text-2xl font-semibold leading-8;
+    @apply text-2xl font-semibold leading-8 text-neutral-100;
   }
   
   .heading-lg {
-    @apply text-3xl font-semibold leading-9;
+    @apply text-3xl font-semibold leading-9 text-neutral-100;
   }
   
   .body {
-    @apply text-base leading-6;
+    @apply text-base leading-6 text-neutral-200;
   }
   
   .body-sm {
-    @apply text-sm leading-5;
+    @apply text-sm leading-5 text-neutral-200;
   }
   
   .muted {
     @apply text-xs text-neutral-400 leading-4;
   }
   
-  /* Layout utilities */
+  .label {
+    @apply text-sm font-medium text-neutral-300;
+  }
+  
+  .caption {
+    @apply text-xs text-neutral-400 leading-4;
+  }
+  
+  /* Enhanced Layout utilities */
   .panel {
-    @apply bg-neutral-900 border border-neutral-700 rounded-2xl shadow-lg;
+    @apply bg-neutral-900 border border-neutral-700 rounded-2xl shadow-lg p-6;
+  }
+  
+  .panel-compact {
+    @apply bg-neutral-900 border border-neutral-700 rounded-2xl shadow-lg p-4;
   }
   
   .card {
-    @apply bg-neutral-800 border border-neutral-600 rounded-xl;
+    @apply bg-neutral-800 border border-neutral-600 rounded-xl p-4;
+  }
+  
+  .card-compact {
+    @apply bg-neutral-800 border border-neutral-600 rounded-xl p-3;
+  }
+  
+  /* Spacing utilities */
+  .space-y-tight > * + * {
+    @apply mt-4;
+  }
+  
+  .space-y-relaxed > * + * {
+    @apply mt-8;
   }
   
   /* Focus utilities */

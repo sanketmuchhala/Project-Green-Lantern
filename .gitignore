@@ -30,6 +30,12 @@ coverage/
 # Temp
 *.tmp
 *.temp
+*.backup
+*.backup*
+
+# Build tools
+.turbo/
+.vercel/
 
 # Memory and vector data (PRIVACY: Keep conversation data local)
 memory-exports/

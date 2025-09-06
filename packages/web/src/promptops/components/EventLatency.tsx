@@ -14,15 +14,24 @@ import 'chartjs-adapter-date-fns';
 Chart.register(CategoryScale, LinearScale, PointElement, Tooltip, Legend, TimeScale);
 
 export default function EventLatency({ rows }: { rows: any[] }) {
-  const pts = useMemo(() => rows.map(e => ({
-    x: new Date(e.ts).getTime(),
-    y: Number(e?.timing?.latency_ms || 0)
-  })).filter(p => p.y > 0), [rows]);
+  // Include all events, even with zero latency for better visibility
+  const pts = useMemo(() => rows
+    .filter(e => e.ts && (e?.timing?.latency_ms != null || e?.latency_ms != null))
+    .map(e => ({
+      x: new Date(e.ts).getTime(),
+      y: Math.max(Number(e?.timing?.latency_ms || e?.latency_ms || 0), 1), // Minimum 1ms for visibility
+      provider: e.provider || 'unknown',
+      model: e.model || 'unknown'
+    })), [rows]);
 
-  const ttft = useMemo(() => rows.map(e => ({
-    x: new Date(e.ts).getTime(),
-    y: Number(e?.timing?.ttft_ms || 0)
-  })).filter(p => p.y > 0), [rows]);
+  const ttft = useMemo(() => rows
+    .filter(e => e.ts && (e?.timing?.ttft_ms != null || e?.ttft_ms != null))
+    .map(e => ({
+      x: new Date(e.ts).getTime(),
+      y: Math.max(Number(e?.timing?.ttft_ms || e?.ttft_ms || 0), 1), // Minimum 1ms for visibility
+      provider: e.provider || 'unknown',
+      model: e.model || 'unknown'
+    })), [rows]);
 
   return (
     <div className="rounded-2xl bg-neutral-900 border border-neutral-700 p-4">
@@ -81,7 +90,16 @@ export default function EventLatency({ rows }: { rows: any[] }) {
                 intersect: false,
                 backgroundColor: 'rgba(0,0,0,0.8)',
                 titleColor: '#fff',
-                bodyColor: '#fff'
+                bodyColor: '#fff',
+                callbacks: {
+                  title: function(context: any) {
+                    return new Date(context[0].parsed.x).toLocaleString();
+                  },
+                  label: function(context: any) {
+                    const point = context.dataset.data[context.dataIndex];
+                    return `${context.dataset.label}: ${context.parsed.y}ms${point?.provider ? ` (${point.provider}/${point.model})` : ''}`;
+                  }
+                }
               }
             }
           }}

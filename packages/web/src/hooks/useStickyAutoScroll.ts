@@ -26,8 +26,11 @@ export function useStickyAutoScroll(containerRef: React.RefObject<HTMLElement>) 
     if (!stick) return;
     const el = containerRef.current;
     if (!el) return;
+    // Use double requestAnimationFrame to ensure DOM is fully committed
     requestAnimationFrame(() => {
-      el.scrollTop = el.scrollHeight;
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight;
+      });
     });
   }, [stick, containerRef]);
 
@@ -35,11 +38,26 @@ export function useStickyAutoScroll(containerRef: React.RefObject<HTMLElement>) 
     if (!node) return;
     lastAnchorRef.current = node;
     if (stick) {
+      // Smooth reveal without jarring jumps
       requestAnimationFrame(() => {
-        node.scrollIntoView({ block: "end", behavior: "smooth" });
+        requestAnimationFrame(() => {
+          node.scrollIntoView({ 
+            block: "nearest", 
+            behavior: "smooth",
+            inline: "nearest"
+          });
+        });
       });
     }
   }, [stick]);
 
-  return { stick, scrollToBottomIfStuck, markMessageAnchor };
+  // Prevent focus-induced scroll jumps
+  const preventScrollJumps = useCallback((e: FocusEvent) => {
+    // If we're auto-scrolling, prevent focus from interfering
+    if (stick) {
+      e.preventDefault();
+    }
+  }, [stick]);
+
+  return { stick, scrollToBottomIfStuck, markMessageAnchor, preventScrollJumps };
 }

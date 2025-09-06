@@ -8,8 +8,9 @@ import { hallucinationRisk } from "./hallucination";
 import { estimateCost } from "./pricing";
 import EventLatency from "./components/EventLatency";
 import SystemMetrics from "./components/SystemMetrics";
+import ContextBloat from "./components/ContextBloat";
 
-export default function PromptScopeDashboard() {
+export default function PromptAnalyticsDashboard() {
   const [rows, setRows] = useState<any[]>([]);
   const [sum, setSum] = useState<any | null>(null);
   const [activeView, setActiveView] = useState<'dashboard' | 'events'>('dashboard');
@@ -78,10 +79,10 @@ export default function PromptScopeDashboard() {
   const modelCompareData = useMemo(() => modelRollup(rows), [rows]);
 
   return (
-    <div className="mx-auto max-w-screen-2xl p-4 sm:p-6 bg-neutral-950 text-neutral-200 font-sans">
+    <div className="mx-auto max-w-screen-2xl p-4 sm:p-6 bg-neutral-950 text-neutral-200 font-sans relative z-0">
       <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex-shrink-0">
-          <h1 className="text-2xl font-bold text-white">PromptScope Dashboard</h1>
+          <h1 className="text-2xl font-bold text-white">Prompt Analytics Dashboard</h1>
           <p className="text-neutral-400">Analytics for your LLM interactions.</p>
         </div>
         <div className="flex gap-2 sm:gap-4 flex-shrink-0">
@@ -127,6 +128,7 @@ export default function PromptScopeDashboard() {
                 <ScatterChart points={modelCompareData.map(r => ({ x: r.avg_cost, y: r.avg_pqs, r: Math.log(r.N + 1) * 4, label: r.model, series: r.model }))} seriesKey="series" />
               </div>
               <EventLatency rows={rows} />
+              <ContextBloat rows={rows} />
               <SystemMetrics />
             </div>
 

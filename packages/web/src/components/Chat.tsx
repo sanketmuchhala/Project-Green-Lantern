@@ -8,6 +8,7 @@ import { PROVIDER_NAMES, getDefaultModelForProvider } from '../constants/models'
 import type { Provider } from '../lib/db';
 import { startTurn } from '../promptops/instrument';
 import { useStickyAutoScroll } from '../hooks/useStickyAutoScroll';
+import ThinkingHUD from './ThinkingHUD';
 
 interface ChatProps {
   onOpenSettings: () => void;
@@ -18,6 +19,13 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [reasoningEnabled, setReasoningEnabled] = useState(false);
+  
+  // ThinkingHUD state
+  const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
+  const [thinkingPhase, setThinkingPhase] = useState<"Planning" | "Drafting" | "Refining">("Planning");
+  const [tokensReceived, setTokensReceived] = useState(0);
+  const [reasoningSummary, setReasonningSummary] = useState<string | undefined>();
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -98,6 +106,12 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     const currentInput = input.trim();
     setInput('');
     setIsLoading(true);
+    
+    // Initialize ThinkingHUD
+    setThinkingStartTime(Date.now());
+    setThinkingPhase("Planning");
+    setTokensReceived(0);
+    setReasonningSummary(undefined);
 
     // Start turn instrumentation
     const turn = startTurn({
@@ -201,6 +215,18 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
       
       // Mark first token received (for TTFT)
       turn.markFirstToken();
+      setThinkingPhase("Drafting");
+      
+      // Estimate tokens received for progress tracking
+      const contentLength = data.message?.content?.length || 0;
+      const estimatedTokens = Math.max(1, Math.floor(contentLength / 4)); // Rough chars to tokens
+      setTokensReceived(estimatedTokens);
+      setThinkingPhase("Refining");
+      
+      // Check for reasoning summary
+      if (data.reasoning) {
+        setReasonningSummary(data.reasoning.substring(0, 100) + (data.reasoning.length > 100 ? '...' : ''));
+      }
       
       // Add assistant message with web search metadata and reasoning
       await addMessage('assistant', data.message.content, {
@@ -257,6 +283,9 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
 
     } finally {
       setIsLoading(false);
+      setThinkingStartTime(null);
+      setTokensReceived(0);
+      setReasonningSummary(undefined);
     }
   };
 
@@ -278,8 +307,8 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
         
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-6 max-w-md px-6">
-            <div className="heading-lg text-neutral-300 mb-6">BYOK Copilot</div>
-            <h2 className="heading-md text-neutral-100">Welcome to BYOK</h2>
+            <div className="heading-lg text-neutral-300 mb-6">Lantern</div>
+            <h2 className="heading-md text-neutral-100">Welcome to Lantern</h2>
             <p className="body text-neutral-400">
               Your local-only AI assistant. Bring your own API keys and chat with confidence.
             </p>
@@ -362,10 +391,15 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
                 );
               })}
               
-              {isLoading && (
-                <div className="flex items-center gap-3 px-6 py-4 text-neutral-400">
-                  <Loader2 size={18} className="animate-spin" />
-                  <span className="body-sm">Thinking...</span>
+              {isLoading && thinkingStartTime && (
+                <div className="px-6">
+                  <ThinkingHUD
+                    running={isLoading}
+                    elapsedMs={Date.now() - thinkingStartTime}
+                    tokensPerSec={tokensReceived > 0 ? tokensReceived / Math.max(1, (Date.now() - thinkingStartTime) / 1000) : undefined}
+                    phase={thinkingPhase}
+                    summary={reasoningSummary}
+                  />
                 </div>
               )}
             </div>
