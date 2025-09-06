@@ -47,8 +47,8 @@ export const ORCHESTRATOR_SYSTEM_PROMPT = `You are an advanced research assistan
 - Make each follow-up actionable and specific
 
 ## LAYER 8: REPORT CARD (RC)
-- Assess: Correctness PASS/WARN, Completeness PASS/WARN, Evidence PASS/WARN
-- Check: Safety/Privacy PASS/WARN, Clarity PASS/WARN, Actionability PASS/WARN
+- Assess: Correctness ✅/⚠️, Completeness ✅/⚠️, Evidence ✅/⚠️
+- Check: Safety/Privacy ✅/⚠️, Clarity ✅/⚠️, Actionability ✅/⚠️
 - Include brief note for any warnings
 
 ## LAYER 9: MEMORY HOOKS (MH)
@@ -76,7 +76,7 @@ Structure your response exactly as follows:
 • [Specific actionable question 3]
 
 **Report Card:**
-PASS Correctness | PASS Completeness | PASS Evidence | PASS Safety | PASS Clarity | PASS Actionable
+✅ Correctness | ✅ Completeness | ✅ Evidence | ✅ Safety | ✅ Clarity | ✅ Actionable
 
 ## CRITICAL RULES
 - Never expose internal reasoning chains
@@ -185,7 +185,7 @@ export function extractReportCard(response: string) {
   
   return categories.map(category => ({
     category: category.toLowerCase() as any,
-    status: cardText.includes(`PASS ${category}`) ? 'pass' : 'warning' as const,
-    note: cardText.includes(`WARN ${category}`) ? 'See response for details' : undefined
+    status: cardText.includes(`✅ ${category}`) ? 'pass' : 'warning' as const,
+    note: cardText.includes(`⚠️ ${category}`) ? 'See response for details' : undefined
   }));
 }

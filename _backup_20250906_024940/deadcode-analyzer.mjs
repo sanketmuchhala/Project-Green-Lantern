@@ -38,7 +38,7 @@ class DeadCodeAnalyzer {
   }
 
   async analyze() {
-    console.log('Starting dead-code analysis...');
+    console.log('🔍 Starting dead-code analysis...');
     
     // Step 1: Find all source files
     this.findSourceFiles();
@@ -55,7 +55,7 @@ class DeadCodeAnalyzer {
     // Step 5: Generate report
     this.generateReport();
     
-    console.log('Dead-code analysis complete!');
+    console.log('✅ Dead-code analysis complete!');
   }
 
   findSourceFiles() {
@@ -69,7 +69,7 @@ class DeadCodeAnalyzer {
         });
       }
     }
-    console.log(`Found ${this.sourceFiles.size} source files`);
+    console.log(`📁 Found ${this.sourceFiles.size} source files`);
   }
 
   walkDirectory(dir, callback) {
@@ -86,7 +86,7 @@ class DeadCodeAnalyzer {
   }
 
   async runExternalAnalysis() {
-    console.log('Running ts-unused-exports...');
+    console.log('🔧 Running ts-unused-exports...');
     try {
       const result = execSync('npx ts-unused-exports tsconfig.json', { encoding: 'utf8' });
       // Parse ts-unused-exports output to find unused files
@@ -98,16 +98,16 @@ class DeadCodeAnalyzer {
         }
       }
     } catch (error) {
-      console.log('ts-unused-exports analysis skipped (errors expected)');
+      console.log('⚠️ ts-unused-exports analysis skipped (errors expected)');
     }
 
-    console.log('Running depcheck...');
+    console.log('🔧 Running depcheck...');
     try {
       const result = execSync('npx depcheck --json', { encoding: 'utf8' });
       const depResult = JSON.parse(result);
       this.unusedDeps = new Set(depResult.dependencies || []);
     } catch (error) {
-      console.log('depcheck analysis failed, continuing...');
+      console.log('⚠️ depcheck analysis failed, continuing...');
     }
   }
 
@@ -126,7 +126,7 @@ class DeadCodeAnalyzer {
         
         this.importGraph.set(filePath, imports);
       } catch (error) {
-        console.log(`Could not read ${filePath}`);
+        console.log(`⚠️ Could not read ${filePath}`);
       }
     }
   }
@@ -253,7 +253,7 @@ ${EXCLUDED_PATTERNS.map(p => `- \`${p.source || p.toString()}\``).join('\n')}
 `;
 
     fs.writeFileSync(path.join(projectRoot, 'DEADCODE_REPORT.md'), reportContent);
-    console.log('Generated DEADCODE_REPORT.md');
+    console.log('📊 Generated DEADCODE_REPORT.md');
   }
 
   writeDeletionList() {
@@ -270,7 +270,7 @@ ${EXCLUDED_PATTERNS.map(p => `- \`${p.source || p.toString()}\``).join('\n')}
       path.join(projectRoot, 'SAFE_DELETE_LIST.json'), 
       JSON.stringify(deletionList, null, 2)
     );
-    console.log('Generated SAFE_DELETE_LIST.json');
+    console.log('📋 Generated SAFE_DELETE_LIST.json');
   }
 }
 

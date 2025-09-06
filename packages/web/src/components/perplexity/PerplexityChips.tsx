@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, Brain, ArrowRight } from 'lucide-react';
+import { Button, Badge } from '../ui';
 import { ConfidenceLevel, ReportCardItem } from '@app/types';
 
 interface PerplexityChipsProps {
@@ -17,14 +18,6 @@ export const PerplexityChips: React.FC<PerplexityChipsProps> = ({
   reportCard,
   onFollowUpClick
 }) => {
-  const getConfidenceColor = (level: ConfidenceLevel) => {
-    switch (level) {
-      case 'high': return 'bg-green-900 text-green-200 border-green-700';
-      case 'medium': return 'bg-yellow-900 text-yellow-200 border-yellow-700';
-      case 'low': return 'bg-red-900 text-red-200 border-red-700';
-      default: return 'bg-neutral-800 text-neutral-200 border-neutral-600';
-    }
-  };
 
   const getConfidenceIcon = (level: ConfidenceLevel) => {
     switch (level) {
@@ -39,16 +32,18 @@ export const PerplexityChips: React.FC<PerplexityChipsProps> = ({
       {/* Assumptions */}
       {assumptions && assumptions.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-neutral-300 mb-2">Assumptions Made:</h4>
+          <h4 className="body-sm font-medium text-neutral-300 mb-3">Assumptions Made:</h4>
           <div className="flex flex-wrap gap-2">
             {assumptions.map((assumption, index) => (
-              <div
+              <Badge
                 key={index}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-amber-900 text-amber-200 border border-amber-700 rounded-full text-sm"
+                variant="warning"
+                size="md"
+                className="gap-2"
               >
                 <AlertTriangle size={14} />
                 {assumption}
-              </div>
+              </Badge>
             ))}
           </div>
         </div>
@@ -58,10 +53,18 @@ export const PerplexityChips: React.FC<PerplexityChipsProps> = ({
       {confidence && (
         <div>
           <div className="flex flex-wrap gap-2">
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 border rounded-full text-sm font-medium ${getConfidenceColor(confidence)}`}>
+            <Badge
+              variant={
+                confidence === 'high' ? 'success' :
+                confidence === 'medium' ? 'warning' :
+                confidence === 'low' ? 'danger' : 'default'
+              }
+              size="md"
+              className="gap-2 font-medium"
+            >
               {getConfidenceIcon(confidence)}
               Confidence: {confidence.charAt(0).toUpperCase() + confidence.slice(1)}
-            </div>
+            </Badge>
           </div>
         </div>
       )}
@@ -69,17 +72,19 @@ export const PerplexityChips: React.FC<PerplexityChipsProps> = ({
       {/* Follow-up Questions */}
       {followUps && followUps.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-neutral-300 mb-2">Follow-up Questions:</h4>
+          <h4 className="body-sm font-medium text-neutral-300 mb-3">Follow-up Questions:</h4>
           <div className="flex flex-wrap gap-2">
             {followUps.map((followUp, index) => (
-              <button
+              <Button
                 key={index}
                 onClick={() => onFollowUpClick?.(followUp)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900 hover:bg-blue-800 text-blue-200 border border-blue-700 rounded-full text-sm transition-colors cursor-pointer"
+                variant="primary"
+                size="sm"
+                className="gap-2 rounded-full"
               >
                 <ArrowRight size={14} />
                 {followUp}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -88,21 +93,19 @@ export const PerplexityChips: React.FC<PerplexityChipsProps> = ({
       {/* Report Card */}
       {reportCard && reportCard.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-neutral-300 mb-2">Quality Assessment:</h4>
+          <h4 className="body-sm font-medium text-neutral-300 mb-3">Quality Assessment:</h4>
           <div className="grid grid-cols-3 gap-2">
             {reportCard.map((item, index) => (
-              <div
+              <Badge
                 key={index}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border ${
-                  item.status === 'pass' 
-                    ? 'bg-green-900 text-green-200 border-green-700' 
-                    : 'bg-yellow-900 text-yellow-200 border-yellow-700'
-                }`}
+                variant={item.status === 'pass' ? 'success' : 'warning'}
+                size="md"
+                className="justify-center gap-2"
                 title={item.note}
               >
-                {item.status === 'pass' ? '✅' : '⚠️'}
+                {item.status === 'pass' ? <CheckCircle size={12} /> : <AlertTriangle size={12} />}
                 <span className="capitalize">{item.category}</span>
-              </div>
+              </Badge>
             ))}
           </div>
         </div>
