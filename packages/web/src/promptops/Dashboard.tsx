@@ -110,45 +110,103 @@ export default function PromptAnalyticsDashboard() {
       </header>
 
       {activeView === 'dashboard' ? (
-        <>
-          {/* Main KPI Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {mainKpis.map(kpi => <KPI key={kpi.label} label={kpi.label} value={kpi.value} suffix={kpi.unit} />)}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 bg-neutral-900 rounded-xl"><h3 className="text-lg font-semibold mb-2">Latency Trend (ms)</h3><LineChart labels={latSeries.labels} series={[{ label: "p50", data: latSeries.p50 }, { label: "p95", data: latSeries.p95 }]} /></div>
-                <div className="p-4 bg-neutral-900 rounded-xl"><h3 className="text-lg font-semibold mb-2">Tokens by Day</h3><BarStack labels={tokenSeries.labels} stacks={[{ label: "Prompt", data: tokenSeries.prompt }, { label: "Output", data: tokenSeries.output }]} /></div>
+        <div className="h-full overflow-y-auto">
+          {/* Compact Analytics Grid - No Scroll */}
+          <div className="grid grid-cols-6 grid-rows-4 gap-3 h-full">
+            
+            {/* Top Row: KPIs */}
+            <div className="col-span-6 row-span-1">
+              <div className="grid grid-cols-4 gap-3 h-full">
+                {mainKpis.map(kpi => (
+                  <div key={kpi.label} className="bg-neutral-900 border border-neutral-700 rounded-xl p-3 flex flex-col justify-center">
+                    <div className="text-2xl font-bold text-neutral-100">{kpi.value}{kpi.unit}</div>
+                    <div className="text-sm text-neutral-400">{kpi.label}</div>
+                  </div>
+                ))}
               </div>
-              <div className="p-4 bg-neutral-900 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2">Model Performance (Quality vs. Cost)</h3>
-                <ScatterChart points={modelCompareData.map(r => ({ x: r.avg_cost, y: r.avg_pqs, r: Math.log(r.N + 1) * 4, label: r.model, series: r.model }))} seriesKey="series" />
-              </div>
-              <EventLatency rows={rows} />
-              <ContextBloat rows={rows} />
-              <SystemMetrics />
             </div>
 
-            {/* Right Column (Sidebar) */}
-            <div className="space-y-6">
-              <div className="p-4 bg-neutral-900 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2">Hallucination Risk</h3>
-                <div className="grid grid-cols-3 gap-2">
-                    <Gauge value={riskBands.low} max={riskBands.total} label="Low" unit=" events" />
-                    <Gauge value={riskBands.med} max={riskBands.total} label="Medium" unit=" events" />
-                    <Gauge value={riskBands.high} max={riskBands.total} label="High" unit=" events" />
+            {/* Second Row: Main Charts */}
+            <div className="col-span-3 row-span-1">
+              <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Event Latency Timeline</h3>
+                <div style={{ height: 'calc(100% - 2rem)' }}>
+                  <EventLatency rows={rows} />
                 </div>
               </div>
-              <div className="p-4 bg-neutral-900 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2">Outcome Mix</h3>
-                <DoughnutChart labels={outcomes.labels} values={outcomes.values} />
+            </div>
+
+            <div className="col-span-2 row-span-1">
+              <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Context Bloat</h3>
+                <div style={{ height: 'calc(100% - 2rem)' }}>
+                  <ContextBloat rows={rows} />
+                </div>
               </div>
             </div>
+
+            <div className="col-span-1 row-span-1">
+              <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Outcome Mix</h3>
+                <div style={{ height: 'calc(100% - 2rem)' }}>
+                  <DoughnutChart labels={outcomes.labels} values={outcomes.values} />
+                </div>
+              </div>
+            </div>
+
+            {/* Third Row: Performance & Risk */}
+            <div className="col-span-4 row-span-1">
+              <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Model Performance (Quality vs. Cost)</h3>
+                <div style={{ height: 'calc(100% - 2rem)' }}>
+                  <ScatterChart points={modelCompareData.map(r => ({ x: r.avg_cost, y: r.avg_pqs, r: Math.log(r.N + 1) * 4, label: r.model, series: r.model }))} seriesKey="series" />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-span-2 row-span-1">
+              <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Hallucination Risk</h3>
+                <div className="grid grid-cols-3 gap-2 h-[calc(100%-2rem)]">
+                  <div className="flex flex-col items-center justify-center">
+                    <Gauge value={riskBands.low} max={riskBands.total} label="Low" unit=" events" />
+                  </div>
+                  <div className="flex flex-col items-center justify-center">
+                    <Gauge value={riskBands.med} max={riskBands.total} label="Medium" unit=" events" />
+                  </div>
+                  <div className="flex flex-col items-center justify-center">
+                    <Gauge value={riskBands.high} max={riskBands.total} label="High" unit=" events" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Row: System Metrics & Trends */}
+            <div className="col-span-3 row-span-1">
+              <div style={{ height: '100%' }}>
+                <SystemMetrics />
+              </div>
+            </div>
+
+            <div className="col-span-3 row-span-1">
+              <div className="grid grid-cols-2 gap-3 h-full">
+                <div className="bg-neutral-900 rounded-xl p-3">
+                  <h3 className="text-sm font-semibold mb-2 text-neutral-100">Latency Trend</h3>
+                  <div style={{ height: 'calc(100% - 2rem)' }}>
+                    <LineChart labels={latSeries.labels} series={[{ label: "p50", data: latSeries.p50 }, { label: "p95", data: latSeries.p95 }]} />
+                  </div>
+                </div>
+                <div className="bg-neutral-900 rounded-xl p-3">
+                  <h3 className="text-sm font-semibold mb-2 text-neutral-100">Tokens by Day</h3>
+                  <div style={{ height: 'calc(100% - 2rem)' }}>
+                    <BarStack labels={tokenSeries.labels} stacks={[{ label: "Prompt", data: tokenSeries.prompt }, { label: "Output", data: tokenSeries.output }]} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
-        </>
+        </div>
       ) : (
         /* Events View */
         <div className="p-4 bg-neutral-900 rounded-xl">
