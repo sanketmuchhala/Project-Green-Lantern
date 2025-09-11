@@ -71,8 +71,25 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   // Get available models for current provider
   const handleModelChange = async (newModel: string) => {
     if (conversation && newModel !== conversation.model) {
+      // Auto-detect required provider for the model
+      let requiredProvider: Provider = conversation.provider;
+      
+      // Check if model requires a specific provider
+      if (newModel.includes('gemma') || newModel.includes('llama') || newModel.includes('qwen') || newModel.includes('phi')) {
+        requiredProvider = 'local-ollama';
+      } else if (newModel.includes('claude')) {
+        requiredProvider = 'anthropic';
+      } else if (newModel.includes('gpt')) {
+        requiredProvider = 'openai';
+      } else if (newModel.includes('gemini')) {
+        requiredProvider = 'gemini';
+      } else if (newModel.includes('deepseek')) {
+        requiredProvider = 'deepseek';
+      }
+      
       await updateConversationSettings(conversation.id, {
-        model: newModel
+        model: newModel,
+        ...(requiredProvider !== conversation.provider && { provider: requiredProvider })
       });
     }
   };

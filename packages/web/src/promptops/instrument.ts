@@ -23,6 +23,8 @@ export function startTurn(ctx: TurnCtx) {
     safety?: any;
     quality?: any;
     prompt?: any;
+    retrieval?: any;
+    answer?: any;
   } = {}) {
     const t1 = performance.now();
     await logTurn({
@@ -41,11 +43,13 @@ export function startTurn(ctx: TurnCtx) {
         latency_ms: Math.round(t1 - t0),
         ...(tFirst ? { ttft_ms: Math.round(tFirst - t0) } : {})
       },
-      result: { status: "ok" }
+      result: { status: "ok" },
+      ...(extra.retrieval ? { retrieval: extra.retrieval } : {}),
+      ...(extra.answer ? { answer: extra.answer } : {})
     });
   }
 
-  async function endError(err: any, extra: { prompt?: any } = {}) {
+  async function endError(_err: any, extra: { prompt?: any } = {}) {
     const t1 = performance.now();
     await logTurn({
       ts: new Date().toISOString(),

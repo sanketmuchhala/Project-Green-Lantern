@@ -62,7 +62,19 @@ export interface PromptEvent {
     ttft_ms?: number;
   };
   result: {
-    status: 'ok' | 'error';
+    status: 'ok' | 'error' | 'refusal';
+  };
+  retrieval?: {
+    web_enabled?: boolean;
+    q_plan_ms?: number;
+    fetch_ms?: number;
+    k?: number;
+    hits?: number;
+    hosts?: number;
+  };
+  answer?: {
+    text?: string;
+    citations?: string[];
   };
 }
 

@@ -174,7 +174,7 @@ export const LocalDiagnostics: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          {results.map((result, index) => (
+          {results.map((result) => (
             <div key={result.name} className="flex items-center gap-3 p-4 bg-neutral-800 rounded-lg">
               {getStatusIcon(result.status)}
               <div className="flex-1">

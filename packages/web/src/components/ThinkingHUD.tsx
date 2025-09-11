@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface ThinkingHUDProps {
@@ -13,7 +13,7 @@ export default function ThinkingHUD({
   running, 
   elapsedMs, 
   tokensPerSec, 
-  phase = "Thinking", 
+  phase = "Planning", 
   summary 
 }: ThinkingHUDProps) {
   const [expanded, setExpanded] = useState(false);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 interface SystemMetrics {
   host: {
@@ -39,7 +39,7 @@ export default function SystemMetrics() {
 
   useEffect(() => {
     fetchMetrics();
-    const interval = setInterval(fetchMetrics, 5000);
+    const interval = setInterval(fetchMetrics, 4000); // 4 second updates for real-time feel
     return () => clearInterval(interval);
   }, []);
 

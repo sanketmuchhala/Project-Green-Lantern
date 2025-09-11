@@ -1,18 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { getEvents } from "./logger";
-import { summarize } from "./kpis";
-import { KPI, Table } from "./components/Cards";
-import { LineChart, BarStack, DoughnutChart, ScatterChart, Gauge } from "./components/Charts";
+// import { summarize } from "./kpis";
+import { Table } from "./components/Cards";
+import { LineChart, BarStack, DoughnutChart, ScatterChart } from "./components/Charts";
 import { byDay, sumByDay, modelRollup } from "./analytics";
 import { hallucinationRisk } from "./hallucination";
 import { estimateCost } from "./pricing";
 import EventLatency from "./components/EventLatency";
 import SystemMetrics from "./components/SystemMetrics";
 import ContextBloat from "./components/ContextBloat";
+import BandBars from "./components/BandBars";
+import SplitBars from "./components/SplitBars";
+import { 
+  p50, p95, p99, groundedness, contextBloat, errorRate, refusalRate, 
+  helpfulRate, slaBreaches, avgCostPer100, avgTTFT, avgTotalTokens 
+} from "./metrics";
 
 export default function PromptAnalyticsDashboard() {
   const [rows, setRows] = useState<any[]>([]);
-  const [sum, setSum] = useState<any | null>(null);
+  // const [sum, setSum] = useState<any | null>(null);
   const [activeView, setActiveView] = useState<'dashboard' | 'events'>('dashboard');
 
   useEffect(() => {
@@ -20,9 +26,9 @@ export default function PromptAnalyticsDashboard() {
       const r = await getEvents();
       for (const e of r) {
         const h = hallucinationRisk(e);
-        e._riskScore = h.score;
-        e._riskBand = h.band;
-        e._cost_est = estimateCost(e.provider || '', e.model || '', e.usage?.prompt_tokens, e.usage?.completion_tokens, e.usage?.total_tokens);
+        (e as any)._riskScore = h.score;
+        (e as any)._riskBand = h.band;
+        (e as any)._cost_est = estimateCost(e.provider || '', e.model || '', e.usage?.prompt_tokens, e.usage?.completion_tokens, e.usage?.total_tokens);
         const helpful = ((e.quality?.user_rating ?? 0) >= 4) || ((e.quality?.judge_score ?? 0) >= 0.75) ? 1 : 0;
         const refusal = e.result?.status === "refusal" ? 1 : 0;
         const p95Target = 5000;
@@ -31,22 +37,35 @@ export default function PromptAnalyticsDashboard() {
         const pt = Number(e.usage?.prompt_tokens || 0);
         const tt = Number(e.usage?.total_tokens || 0);
         const cost_eff = tt ? 1 - Math.min(pt / tt, 1) : 0.5;
-        e._pqs = 0.35 * helpful + 0.15 * (1 - refusal) + 0.15 * latency_norm + 0.15 * cost_eff + 0.20 * (e.quality?.judge_score || 0);
+        (e as any)._pqs = 0.35 * helpful + 0.15 * (1 - refusal) + 0.15 * latency_norm + 0.15 * cost_eff + 0.20 * (e.quality?.judge_score || 0);
       }
       setRows(r);
-      setSum(summarize(r));
+      // setSum(summarize(r));
     })();
   }, []);
 
   const mainKpis = useMemo(() => {
-    if (!sum) return [];
+    if (!rows.length) return [];
+    
+    const latencies = rows.map(e => Number(e?.timing?.latency_ms || 0)).filter(l => l > 0);
+    // const ttfts = rows.map(e => Number(e?.timing?.ttft_ms || 0)).filter(t => t > 0);
+    
     return [
-      { label: "Total Calls", value: sum.calls, unit: '' },
-      { label: "Helpful Rate", value: sum.helpful_rate * 100, unit: '%' },
-      { label: "p95 Latency", value: sum.p95_latency, unit: 'ms' },
-      { label: "Avg Cost/100", value: sum.cost_per_100, unit: '$' },
+      { label: "Total Calls", value: rows.length, unit: '' },
+      { label: "Helpful Rate", value: Math.round(helpfulRate(rows) * 100), unit: '%' },
+      { label: "Refusal Rate", value: Math.round(refusalRate(rows) * 100), unit: '%' },
+      { label: "Error Rate", value: Math.round(errorRate(rows) * 100), unit: '%' },
+      { label: "p50 Latency", value: Math.round(p50(latencies)), unit: 'ms' },
+      { label: "p95 Latency", value: Math.round(p95(latencies)), unit: 'ms' },
+      { label: "p99 Latency", value: Math.round(p99(latencies)), unit: 'ms' },
+      { label: "Avg TTFT", value: Math.round(avgTTFT(rows)), unit: 'ms' },
+      { label: "Avg Total Tokens", value: Math.round(avgTotalTokens(rows)), unit: '' },
+      { label: "Context Bloat", value: Math.round(contextBloat(rows) * 100), unit: '%' },
+      { label: "Cost/100 Chats", value: avgCostPer100(rows).toFixed(2), unit: '$' },
+      { label: "Groundedness", value: Math.round(groundedness(rows) * 100), unit: '%' },
+      { label: "SLA Breaches", value: slaBreaches(rows, 5000), unit: '' }
     ];
-  }, [sum]);
+  }, [rows]);
 
   const latSeries = useMemo(() => {
     const d = byDay(rows, (e: any) => Number((e.timing?.latency_ms as string) || 0));
@@ -70,16 +89,16 @@ export default function PromptAnalyticsDashboard() {
   }, [rows]);
 
   const riskBands = useMemo(() => {
-      const low = rows.filter(e => e._riskBand === "Low").length;
-      const med = rows.filter(e => e._riskBand === "Medium").length;
-      const high = rows.filter(e => e._riskBand === "High").length;
+      const low = rows.filter(e => (e as any)._riskBand === "Low").length;
+      const med = rows.filter(e => (e as any)._riskBand === "Medium").length;
+      const high = rows.filter(e => (e as any)._riskBand === "High").length;
       return { low, med, high, total: rows.length };
   }, [rows]);
 
   const modelCompareData = useMemo(() => modelRollup(rows), [rows]);
 
   return (
-    <div className="mx-auto max-w-screen-2xl p-4 sm:p-6 bg-neutral-950 text-neutral-200 font-sans relative z-0">
+    <div className="mx-auto max-w-screen-2xl p-4 sm:p-6 bg-neutral-950 text-neutral-200 font-sans relative z-10">
       <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex-shrink-0">
           <h1 className="text-2xl font-bold text-white">Prompt Analytics Dashboard</h1>
@@ -112,50 +131,55 @@ export default function PromptAnalyticsDashboard() {
       {activeView === 'dashboard' ? (
         <div className="h-full overflow-y-auto">
           {/* Compact Analytics Grid - No Scroll */}
-          <div className="grid grid-cols-6 grid-rows-4 gap-3 h-full">
+          <div className="grid grid-cols-6 grid-rows-5 gap-3 h-full">
             
-            {/* Top Row: KPIs */}
-            <div className="col-span-6 row-span-1">
-              <div className="grid grid-cols-4 gap-3 h-full">
+            {/* Top Rows: Enhanced KPIs */}
+            <div className="col-span-6 row-span-2">
+              <div className="grid grid-cols-7 gap-2 h-full">
                 {mainKpis.map(kpi => (
-                  <div key={kpi.label} className="bg-neutral-900 border border-neutral-700 rounded-xl p-3 flex flex-col justify-center">
-                    <div className="text-2xl font-bold text-neutral-100">{kpi.value}{kpi.unit}</div>
-                    <div className="text-sm text-neutral-400">{kpi.label}</div>
+                  <div key={kpi.label} className="bg-neutral-900 border border-neutral-700 rounded-xl p-2 flex flex-col justify-center">
+                    <div className="text-lg font-bold text-neutral-100">{kpi.value}{kpi.unit}</div>
+                    <div className="text-xs text-neutral-400">{kpi.label}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Second Row: Main Charts */}
+            {/* Analytics Row: Charts */}
+            <div className="col-span-6 row-span-1">
+              <div className="grid grid-cols-6 gap-3 h-full">
+                
+                <div className="col-span-2">
+                  <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                    <h3 className="text-sm font-semibold mb-2 text-neutral-100">Event Latency Timeline</h3>
+                    <div style={{ height: 'calc(100% - 2rem)' }}>
+                      <EventLatency rows={rows} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-1">
+                  <BandBars rows={rows} />
+                </div>
+
+                <div className="col-span-2">
+                  <SplitBars rows={rows} />
+                </div>
+
+                <div className="col-span-1">
+                  <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                    <h3 className="text-sm font-semibold mb-2 text-neutral-100">Outcome Mix</h3>
+                    <div style={{ height: 'calc(100% - 2rem)' }}>
+                      <DoughnutChart labels={outcomes.labels} values={outcomes.values} />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Performance & Context Row */}
             <div className="col-span-3 row-span-1">
-              <div className="bg-neutral-900 rounded-xl p-3 h-full">
-                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Event Latency Timeline</h3>
-                <div style={{ height: 'calc(100% - 2rem)' }}>
-                  <EventLatency rows={rows} />
-                </div>
-              </div>
-            </div>
-
-            <div className="col-span-2 row-span-1">
-              <div className="bg-neutral-900 rounded-xl p-3 h-full">
-                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Context Bloat</h3>
-                <div style={{ height: 'calc(100% - 2rem)' }}>
-                  <ContextBloat rows={rows} />
-                </div>
-              </div>
-            </div>
-
-            <div className="col-span-1 row-span-1">
-              <div className="bg-neutral-900 rounded-xl p-3 h-full">
-                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Outcome Mix</h3>
-                <div style={{ height: 'calc(100% - 2rem)' }}>
-                  <DoughnutChart labels={outcomes.labels} values={outcomes.values} />
-                </div>
-              </div>
-            </div>
-
-            {/* Third Row: Performance & Risk */}
-            <div className="col-span-4 row-span-1">
               <div className="bg-neutral-900 rounded-xl p-3 h-full">
                 <h3 className="text-sm font-semibold mb-2 text-neutral-100">Model Performance (Quality vs. Cost)</h3>
                 <div style={{ height: 'calc(100% - 2rem)' }}>
@@ -166,16 +190,28 @@ export default function PromptAnalyticsDashboard() {
 
             <div className="col-span-2 row-span-1">
               <div className="bg-neutral-900 rounded-xl p-3 h-full">
-                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Hallucination Risk</h3>
-                <div className="grid grid-cols-3 gap-2 h-[calc(100%-2rem)]">
-                  <div className="flex flex-col items-center justify-center">
-                    <Gauge value={riskBands.low} max={riskBands.total} label="Low" unit=" events" />
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Context Bloat Trend</h3>
+                <div style={{ height: 'calc(100% - 2rem)' }}>
+                  <ContextBloat rows={rows} />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-span-1 row-span-1">
+              <div className="bg-neutral-900 rounded-xl p-3 h-full">
+                <h3 className="text-sm font-semibold mb-2 text-neutral-100">Risk Bands</h3>
+                <div className="grid grid-rows-3 gap-1 h-[calc(100%-2rem)] text-center">
+                  <div className="flex flex-col justify-center">
+                    <div className="text-lg font-bold text-green-400">{riskBands.low}</div>
+                    <div className="text-xs text-neutral-400">Low</div>
                   </div>
-                  <div className="flex flex-col items-center justify-center">
-                    <Gauge value={riskBands.med} max={riskBands.total} label="Medium" unit=" events" />
+                  <div className="flex flex-col justify-center">
+                    <div className="text-lg font-bold text-yellow-400">{riskBands.med}</div>
+                    <div className="text-xs text-neutral-400">Med</div>
                   </div>
-                  <div className="flex flex-col items-center justify-center">
-                    <Gauge value={riskBands.high} max={riskBands.total} label="High" unit=" events" />
+                  <div className="flex flex-col justify-center">
+                    <div className="text-lg font-bold text-red-400">{riskBands.high}</div>
+                    <div className="text-xs text-neutral-400">High</div>
                   </div>
                 </div>
               </div>
