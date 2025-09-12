@@ -15,6 +15,9 @@ export type OllamaConfig = {
   use_mlock?: boolean;
   stream?: boolean;
   performanceMode?: boolean; // new flag
+  quantization?: 'q4_K_M' | 'q8_0' | 'fp16' | 'default';
+  num_gpu?: number;
+  flash_attention?: boolean;
 };
 
 function normBaseURL(u?: string) {
@@ -48,21 +51,25 @@ export async function chatWithOllama(opts: {
   const pm = opts.config.performanceMode !== false; // default ON
   const stream = opts.config.stream ?? true; // DEFAULT STREAMING ON for local
   
+  // Quantization-aware optimizations (gemma2:2b is already Q4_0 quantized)
+  const isQuantized = opts.config.model.includes('gemma2:2b') || opts.config.model.includes('q4') || opts.config.model.includes('q8');
+  
   const options: any = {
-    temperature: opts.config.temperature ?? 0.1,  // Lower for faster, more focused responses
-    num_ctx: opts.config.num_ctx ?? (pm ? 512 : 2048),  // MUCH smaller context for speed
+    temperature: opts.config.temperature ?? (isQuantized ? 0.7 : 0.1),
+    num_ctx: opts.config.num_ctx ?? (pm && isQuantized ? 2048 : pm ? 512 : 2048),
     ...(typeof opts.config.max_tokens === "number"
-        ? { num_predict: Math.min(opts.config.max_tokens, pm ? 64 : 256) }
-        : (pm ? { num_predict: 64 } : {})),  // Very short responses for speed
-    top_p: opts.config.top_p ?? (pm ? 0.7 : undefined),  // Lower sampling for speed
-    top_k: opts.config.top_k ?? (pm ? 10 : undefined),   // Much fewer tokens for speed
-    num_thread: opts.config.num_thread ?? (pm ? 2 : undefined),  // Only 2 threads to avoid overload
+        ? { num_predict: Math.min(opts.config.max_tokens, pm && isQuantized ? 256 : pm ? 64 : 256) }
+        : (pm && isQuantized ? { num_predict: 256 } : pm ? { num_predict: 64 } : {})),
+    top_p: opts.config.top_p ?? (isQuantized ? 0.9 : pm ? 0.7 : undefined),
+    top_k: opts.config.top_k ?? (isQuantized ? 40 : pm ? 10 : undefined),
+    num_thread: opts.config.num_thread ?? (isQuantized ? 8 : pm ? 2 : undefined),
     use_mmap: opts.config.use_mmap ?? true,
     use_mlock: opts.config.use_mlock ?? false,
-    num_batch: pm ? 128 : undefined,  // Much smaller batch
-    repeat_penalty: 1.05,  // Lower penalty
-    num_gpu: 0,  // Force CPU only
-    low_vram: true  // Use less VRAM
+    num_batch: isQuantized ? 512 : pm ? 128 : undefined,
+    repeat_penalty: isQuantized ? 1.1 : 1.05,
+    num_gpu: opts.config.num_gpu ?? (isQuantized ? 1 : 0),
+    low_vram: !isQuantized,
+    flash_attention: opts.config.flash_attention ?? isQuantized
   };
 
   const body: any = {
