@@ -19,103 +19,157 @@
 }
 
 @layer components {
-  /* Enhanced Typography utilities */
+  /* Green Lantern Typography utilities */
   .heading-sm {
     @apply text-xl font-semibold leading-7 text-neutral-100;
   }
-  
+
   .heading-md {
     @apply text-2xl font-semibold leading-8 text-neutral-100;
   }
-  
+
   .heading-lg {
     @apply text-3xl font-semibold leading-9 text-neutral-100;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
   }
-  
+
   .body {
     @apply text-base leading-6 text-neutral-200;
   }
-  
+
   .body-sm {
     @apply text-sm leading-5 text-neutral-200;
   }
-  
+
   .muted {
     @apply text-xs text-neutral-400 leading-4;
   }
-  
+
   .label {
     @apply text-sm font-medium text-neutral-300;
   }
-  
+
   .caption {
     @apply text-xs text-neutral-400 leading-4;
   }
-  
-  /* Enhanced Layout utilities */
+
+  /* Green Lantern Layout utilities */
   .panel {
     @apply bg-neutral-900 border border-neutral-700 rounded-2xl shadow-lg p-6;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(34, 197, 94, 0.1);
   }
-  
+
   .panel-compact {
     @apply bg-neutral-900 border border-neutral-700 rounded-2xl shadow-lg p-4;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(34, 197, 94, 0.1);
   }
-  
+
   .card {
     @apply bg-neutral-800 border border-neutral-600 rounded-xl p-4;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(34, 197, 94, 0.1);
   }
-  
+
   .card-compact {
     @apply bg-neutral-800 border border-neutral-600 rounded-xl p-3;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(34, 197, 94, 0.1);
   }
-  
+
+  /* Green Lantern special effects */
+  .lantern-glow {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.1);
+  }
+
+  .lantern-glow-strong {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(34, 197, 94, 0.2);
+  }
+
+  .lantern-border {
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    box-shadow: inset 0 1px 0 rgba(34, 197, 94, 0.1);
+  }
+
+  .lantern-text-glow {
+    color: #22c55e;
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+  }
+
   /* Spacing utilities */
   .space-y-tight > * + * {
     @apply mt-4;
   }
-  
+
   .space-y-relaxed > * + * {
     @apply mt-8;
   }
-  
-  /* Focus utilities */
+
+  /* Green Lantern Focus utilities */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-neutral-950;
+    @apply focus:outline-none focus:ring-2 focus:ring-lantern-400 focus:ring-offset-2 focus:ring-offset-neutral-950;
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5), 0 0 10px rgba(34, 197, 94, 0.3);
+  }
+
+  /* Green Lantern Button styles */
+  .btn-lantern {
+    @apply bg-lantern-600 hover:bg-lantern-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-lantern:hover {
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .btn-lantern-secondary {
+    @apply bg-neutral-800 hover:bg-neutral-700 text-lantern-300 border border-lantern-600 font-medium px-4 py-2 rounded-lg transition-all duration-200;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.1);
+  }
+
+  .btn-lantern-secondary:hover {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.8);
   }
 }
 
 @layer utilities {
-  /* Custom scrollbar */
+  /* Green Lantern themed scrollbar */
   .scrollbar-thin::-webkit-scrollbar {
     @apply w-1.5;
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
     @apply bg-neutral-900;
+    box-shadow: inset 0 0 3px rgba(34, 197, 94, 0.1);
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
     @apply bg-neutral-700 rounded-full;
+    background: linear-gradient(180deg, #4a6a4a 0%, #3a5a3a 100%);
+    box-shadow: 0 0 3px rgba(34, 197, 94, 0.3);
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    @apply bg-neutral-600;
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
   }
-  
-  /* Global scrollbar */
+
+  /* Global Green Lantern scrollbar */
   ::-webkit-scrollbar {
     @apply w-1.5;
   }
 
   ::-webkit-scrollbar-track {
     @apply bg-neutral-900;
+    box-shadow: inset 0 0 3px rgba(34, 197, 94, 0.1);
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-neutral-700 rounded-sm;
+    @apply rounded-sm;
+    background: linear-gradient(180deg, #4a6a4a 0%, #3a5a3a 100%);
+    box-shadow: 0 0 3px rgba(34, 197, 94, 0.3);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-neutral-600;
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
   }
 }

@@ -11,9 +11,10 @@ import SystemMetrics from "./components/SystemMetrics";
 import ContextBloat from "./components/ContextBloat";
 import BandBars from "./components/BandBars";
 import SplitBars from "./components/SplitBars";
-import { 
-  p50, p95, p99, groundedness, contextBloat, errorRate, refusalRate, 
-  helpfulRate, slaBreaches, avgCostPer100, avgTTFT, avgTotalTokens 
+import AnalyticsNav from "./components/AnalyticsNav";
+import {
+  p50, p95, p99, groundedness, contextBloat, errorRate, refusalRate,
+  helpfulRate, slaBreaches, avgCostPer100, avgTTFT, avgTotalTokens
 } from "./metrics";
 
 export default function PromptAnalyticsDashboard() {
@@ -98,32 +99,38 @@ export default function PromptAnalyticsDashboard() {
   const modelCompareData = useMemo(() => modelRollup(rows), [rows]);
 
   return (
-    <div className="mx-auto max-w-screen-2xl p-4 sm:p-6 bg-neutral-950 text-neutral-200 font-sans relative z-10">
-      <header className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex-shrink-0">
-          <h1 className="text-2xl font-bold text-white">Prompt Analytics Dashboard</h1>
-          <p className="text-neutral-400">Analytics for your LLM interactions.</p>
+    <div className="mx-auto max-w-screen-2xl p-6 bg-neutral-950 text-neutral-200 font-sans">
+      <AnalyticsNav title="Legacy Analytics View" />
+
+      <header className="mb-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-8 h-8 rounded-lg bg-lantern-600 lantern-glow-strong flex items-center justify-center">
+            <span className="text-white font-bold text-lg">LEGACY</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white">Legacy Analytics View</h1>
         </div>
-        <div className="flex gap-2 sm:gap-4 flex-shrink-0">
-          <button 
+        <p className="text-neutral-400">Original combined dashboard and events view</p>
+
+        <div className="flex gap-2 mt-4">
+          <button
             onClick={() => setActiveView('dashboard')}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-colors text-sm sm:text-base ${
-              activeView === 'dashboard' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-neutral-300 hover:text-neutral-100 hover:bg-neutral-800'
+            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+              activeView === 'dashboard'
+                ? 'bg-lantern-600 text-white lantern-glow-strong'
+                : 'text-neutral-300 hover:text-lantern-300 hover:bg-neutral-800 hover:border-lantern-600'
             }`}
           >
-            Dashboard
+            Legacy Dashboard
           </button>
-          <button 
+          <button
             onClick={() => setActiveView('events')}
-            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-colors text-sm sm:text-base ${
-              activeView === 'events' 
-                ? 'bg-blue-600 text-white' 
-                : 'text-neutral-300 hover:text-neutral-100 hover:bg-neutral-800'
+            className={`px-4 py-2 rounded-lg transition-all text-sm font-medium ${
+              activeView === 'events'
+                ? 'bg-lantern-600 text-white lantern-glow-strong'
+                : 'text-neutral-300 hover:text-lantern-300 hover:bg-neutral-800 hover:border-lantern-600'
             }`}
           >
-            All Events
+            Legacy Events
           </button>
         </div>
       </header>

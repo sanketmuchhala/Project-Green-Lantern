@@ -8,19 +8,43 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Green Lantern themed color palette
         neutral: {
-          950: '#0a0a0a', // base background
-          900: '#171717', // panel background  
-          850: '#262626', // card/input background
-          800: '#404040', // hover states
-          750: '#525252', // border states  
-          700: '#525252', // borders
-          600: '#737373', // disabled text
-          400: '#a3a3a3', // muted text
-          300: '#d4d4d4', // secondary text
-          200: '#e5e5e5', // primary text
-          100: '#f5f5f5', // bright text
-          50: '#fafafa'   // brightest text
+          950: '#0a0a0a', // deep space black - base background
+          900: '#0d1b0d', // dark green-black - panel background
+          850: '#1a2e1a', // forest green-black - card/input background
+          800: '#2a4a2a', // darker forest green - hover states
+          750: '#3a5a3a', // medium forest green - border states
+          700: '#4a6a4a', // forest green - borders
+          600: '#6a8a6a', // muted green-gray - disabled text
+          400: '#8ab48a', // soft green-gray - muted text
+          300: '#aed4ae', // light green-gray - secondary text
+          200: '#d4ead4', // very light green - primary text
+          100: '#eaf5ea', // pale green - bright text
+          50: '#f5faf5'   // brightest green tint
+        },
+        // Green Lantern signature colors
+        lantern: {
+          50: '#f0fdf4',   // palest green
+          100: '#dcfce7',  // very light green
+          200: '#bbf7d0',  // light green
+          300: '#86efac',  // medium-light green
+          400: '#4ade80',  // bright green
+          500: '#22c55e',  // core green
+          600: '#16a34a',  // darker green
+          700: '#15803d',  // forest green
+          800: '#166534',  // dark forest green
+          900: '#14532d',  // darkest green
+          950: '#052e16'   // black-green
+        },
+        // Glowing effects
+        glow: {
+          50: '#f0fff4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#4ade80',  // primary glow
+          400: '#22c55e',  // secondary glow
+          500: '#16a34a'   // accent glow
         }
       },
       fontFamily: {

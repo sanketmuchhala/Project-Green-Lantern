@@ -51,25 +51,34 @@ export async function chatWithOllama(opts: {
   const pm = opts.config.performanceMode !== false; // default ON
   const stream = opts.config.stream ?? true; // DEFAULT STREAMING ON for local
   
-  // Quantization-aware optimizations (gemma2:2b is already Q4_0 quantized)
-  const isQuantized = opts.config.model.includes('gemma2:2b') || opts.config.model.includes('q4') || opts.config.model.includes('q8');
-  
+  // Optimized settings for gemma2:2b (lightweight and efficient)
+  const isGemma2b = opts.config.model.includes('gemma2:2b');
+
   const options: any = {
-    temperature: opts.config.temperature ?? (isQuantized ? 0.7 : 0.1),
-    num_ctx: opts.config.num_ctx ?? (pm && isQuantized ? 2048 : pm ? 512 : 2048),
+    temperature: opts.config.temperature ?? 0.7,
+    // Reduced context window for better performance
+    num_ctx: opts.config.num_ctx ?? (pm ? 1024 : 2048),
+    // Conservative token generation for efficiency
     ...(typeof opts.config.max_tokens === "number"
-        ? { num_predict: Math.min(opts.config.max_tokens, pm && isQuantized ? 256 : pm ? 64 : 256) }
-        : (pm && isQuantized ? { num_predict: 256 } : pm ? { num_predict: 64 } : {})),
-    top_p: opts.config.top_p ?? (isQuantized ? 0.9 : pm ? 0.7 : undefined),
-    top_k: opts.config.top_k ?? (isQuantized ? 40 : pm ? 10 : undefined),
-    num_thread: opts.config.num_thread ?? (isQuantized ? 8 : pm ? 2 : undefined),
+        ? { num_predict: Math.min(opts.config.max_tokens, pm ? 128 : 256) }
+        : { num_predict: pm ? 128 : 256 }),
+    // Optimized sampling parameters
+    top_p: opts.config.top_p ?? 0.9,
+    top_k: opts.config.top_k ?? 40,
+    // Reduced thread count to be gentle on system
+    num_thread: opts.config.num_thread ?? (pm ? 4 : 6),
+    // Memory optimizations
     use_mmap: opts.config.use_mmap ?? true,
     use_mlock: opts.config.use_mlock ?? false,
-    num_batch: isQuantized ? 512 : pm ? 128 : undefined,
-    repeat_penalty: isQuantized ? 1.1 : 1.05,
-    num_gpu: opts.config.num_gpu ?? (isQuantized ? 1 : 0),
-    low_vram: !isQuantized,
-    flash_attention: opts.config.flash_attention ?? isQuantized
+    // Smaller batch size for lower memory usage
+    num_batch: pm ? 256 : 512,
+    repeat_penalty: 1.1,
+    // GPU settings - single GPU for efficiency
+    num_gpu: opts.config.num_gpu ?? 1,
+    // Enable low VRAM mode for system optimization
+    low_vram: true,
+    // Enable flash attention for gemma2:2b
+    flash_attention: opts.config.flash_attention ?? isGemma2b
   };
 
   const body: any = {

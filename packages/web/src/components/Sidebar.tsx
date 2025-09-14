@@ -1,7 +1,53 @@
 import React, { useState } from 'react';
-import { MessageSquare, Plus, Trash2, Settings, Edit2, Check, X } from 'lucide-react';
+import { Plus, Trash2, Settings, Edit2, Check, X } from 'lucide-react';
 import { Conversation } from '../lib/db';
 import { sanitizeDisplayText } from '../lib/stripEmojis';
+
+// Green Lantern Logo Component
+const GreenLanternLogo: React.FC<{ size?: number; className?: string }> = ({ size = 20, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+  >
+    {/* Green Lantern symbol - outer circle with lantern symbol */}
+    <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+    <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1" fill="none"/>
+
+    {/* Lantern symbol */}
+    <path
+      d="M12 4 L16 8 L16 16 L8 16 L8 8 Z M10 8 L14 8 M8 20 L16 20 M12 16 L12 20"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+
+    {/* Center glow dot */}
+    <circle cx="12" cy="12" r="1" fill="currentColor" className="opacity-80"/>
+  </svg>
+);
+
+const MessageIcon: React.FC<{ size?: number; className?: string }> = ({ size = 14, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+  >
+    <path
+      d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -43,19 +89,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setEditTitle('');
   };
   return (
-    <div className="w-64 border-r flex flex-col h-screen bg-neutral-900 border-neutral-800">
-      <div className="p-4 border-b border-neutral-800">
+    <div className="w-64 border-r flex flex-col h-screen bg-neutral-900 border-neutral-700 lantern-glow">
+      <div className="p-4 border-b border-neutral-700 lantern-border">
         <div className="flex items-center gap-2 mb-3">
-          <MessageSquare size={20} className="text-blue-400" />
-          <span className="font-semibold text-white">Lantern</span>
+          <GreenLanternLogo size={24} className="text-lantern-400 lantern-text-glow" />
+          <span className="font-semibold text-white">Green Lantern</span>
         </div>
-        
-        <button 
+
+        <button
           onClick={() => {
             console.log('New Chat clicked!');
             onNewChat();
           }}
-          className="w-full flex items-center justify-center gap-2 p-3 rounded font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors border-none outline-none cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-lg font-medium bg-lantern-600 hover:bg-lantern-700 text-white transition-all duration-200 border-none outline-none cursor-pointer lantern-glow"
         >
           <Plus size={16} />
           New Chat
@@ -74,12 +120,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {conversations.map((conv) => (
               <div
                 key={conv.id}
-                className={`group flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
-                  activeConversationId === conv.id ? 'bg-neutral-800' : 'hover:bg-neutral-800 hover:bg-opacity-50'
+                className={`group flex items-center gap-2 p-2 rounded cursor-pointer transition-all duration-200 ${
+                  activeConversationId === conv.id
+                    ? 'bg-neutral-800 lantern-border lantern-glow'
+                    : 'hover:bg-neutral-800 hover:bg-opacity-50 hover:border hover:border-lantern-700'
                 }`}
                 onClick={() => editingId !== conv.id && onLoadChat(conv.id)}
               >
-                <MessageSquare size={14} className="text-neutral-400 flex-shrink-0" />
+                <MessageIcon size={14} className="text-lantern-300 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   {editingId === conv.id ? (
                     <div className="flex items-center gap-1">
@@ -87,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         type="text"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        className="flex-1 text-sm bg-neutral-700 text-white px-2 py-1 rounded border-none outline-none"
+                        className="flex-1 text-sm bg-neutral-800 text-white px-2 py-1 rounded lantern-border focus-ring"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveEdit();
                           if (e.key === 'Escape') handleCancelEdit();
@@ -100,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           e.stopPropagation();
                           handleSaveEdit();
                         }}
-                        className="p-1 text-green-400 hover:bg-neutral-700 rounded"
+                        className="p-1 text-lantern-400 hover:bg-neutral-700 hover:text-lantern-300 rounded transition-colors"
                       >
                         <Check size={12} />
                       </button>
@@ -109,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           e.stopPropagation();
                           handleCancelEdit();
                         }}
-                        className="p-1 text-red-400 hover:bg-neutral-700 rounded"
+                        className="p-1 text-red-400 hover:bg-neutral-700 hover:text-red-300 rounded transition-colors"
                       >
                         <X size={12} />
                       </button>
@@ -130,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         e.stopPropagation();
                         handleStartEdit(conv);
                       }}
-                      className="p-1 text-blue-400 hover:bg-neutral-700 rounded transition-all"
+                      className="p-1 text-lantern-400 hover:bg-neutral-700 hover:text-lantern-300 rounded transition-all"
                     >
                       <Edit2 size={12} />
                     </button>
@@ -141,7 +189,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           onDeleteChat(conv.id);
                         }
                       }}
-                      className="p-1 text-red-400 hover:bg-neutral-700 rounded transition-all"
+                      className="p-1 text-red-400 hover:bg-neutral-700 hover:text-red-300 rounded transition-all"
                     >
                       <Trash2 size={12} />
                     </button>
@@ -153,18 +201,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
       
-      <div className="p-4 border-t border-neutral-800">
-        <button 
+      <div className="p-4 border-t border-neutral-700 lantern-border">
+        <button
           onClick={onOpenSettings}
-          className="w-full flex items-center gap-2 p-2 hover:bg-neutral-800 rounded transition-colors text-left"
+          className="w-full flex items-center gap-2 p-2 hover:bg-neutral-800 rounded transition-all duration-200 text-left hover:lantern-glow"
         >
-          <Settings size={16} className="text-neutral-400" />
+          <Settings size={16} className="text-lantern-400" />
           <span className="text-sm text-white">Keys & Settings</span>
         </button>
-        
+
         <div className="mt-3 text-xs text-neutral-400">
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <div className="w-2 h-2 bg-lantern-500 rounded-full lantern-glow-strong"></div>
             <span>Push disabled (local-only)</span>
           </div>
         </div>

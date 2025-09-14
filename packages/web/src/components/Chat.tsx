@@ -324,10 +324,10 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
         
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-6 max-w-md px-6">
-            <div className="heading-lg text-neutral-300 mb-6">Lantern</div>
-            <h2 className="heading-md text-neutral-100">Welcome to Lantern</h2>
+            <div className="heading-lg text-lantern-400 lantern-text-glow mb-6">Green Lantern</div>
+            <h2 className="heading-md text-neutral-100">Welcome to Green Lantern</h2>
             <p className="body text-neutral-400">
-              Your local-only AI assistant. Bring your own API keys and chat with confidence.
+              Your local-only AI assistant with the power of will. Bring your own API keys and chat with confidence.
             </p>
             
             <div className="space-y-4 pt-4">
@@ -352,7 +352,7 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
             </div>
             
             {!hasValidKey && (
-              <div className="mt-6 panel bg-amber-900/20 border-amber-700">
+              <div className="mt-6 panel bg-amber-900/20 border-amber-700 lantern-glow">
                 <div className="p-4">
                   <p className="body-sm text-amber-200">
                     <strong>Notice:</strong> No API key configured. Configure your API keys to start chatting.
@@ -426,10 +426,10 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
       </div>
 
       {/* Composer */}
-      <div className="border-t border-neutral-700 p-6">
+      <div className="border-t border-neutral-700 p-6 lantern-border">
         <div className="max-w-4xl mx-auto">
           {!hasValidKey ? (
-            <div className="panel bg-amber-900/20 border-amber-700 text-center">
+            <div className="panel bg-amber-900/20 border-amber-700 text-center lantern-glow">
               <div className="p-6">
                 <p className="body-sm text-amber-200 mb-4">
                   <strong>Notice:</strong> No API key configured for {conversationProvider}
@@ -452,6 +452,7 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
                   onClick={() => setWebSearchEnabled(!webSearchEnabled)}
                   variant={webSearchEnabled ? 'primary' : 'secondary'}
                   size="sm"
+                  className={webSearchEnabled ? 'bg-lantern-600 hover:bg-lantern-700 lantern-glow' : 'btn-lantern-secondary'}
                 >
                   <Globe size={16} />
                   Web Search
@@ -462,7 +463,7 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
                   onClick={() => setReasoningEnabled(!reasoningEnabled)}
                   variant={reasoningEnabled ? 'primary' : 'secondary'}
                   size="sm"
-                  className={reasoningEnabled ? 'bg-purple-600 hover:bg-purple-700' : ''}
+                  className={reasoningEnabled ? 'bg-lantern-600 hover:bg-lantern-700 lantern-glow' : 'btn-lantern-secondary'}
                 >
                   <Brain size={16} />
                   Show Reasoning
@@ -489,7 +490,7 @@ Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.subst
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={`Message ${conversationProvider}${webSearchEnabled || reasoningEnabled ? ' (' : ''}${webSearchEnabled ? 'web search' : ''}${webSearchEnabled && reasoningEnabled ? ' + ' : ''}${reasoningEnabled ? 'reasoning' : ''}${webSearchEnabled || reasoningEnabled ? ')' : ''}...`}
-                    className="w-full p-4 pr-14 bg-neutral-800 text-neutral-100 border border-neutral-700 rounded-2xl resize-none focus-ring text-lg placeholder-neutral-400"
+                    className="w-full p-4 pr-14 bg-neutral-800 text-neutral-100 border border-neutral-700 rounded-2xl resize-none focus-ring text-lg placeholder-neutral-400 lantern-border lantern-glow"
                     rows={1}
                     disabled={isLoading}
                   />

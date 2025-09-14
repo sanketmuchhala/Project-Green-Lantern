@@ -5,7 +5,7 @@ export const MODELS = {
   anthropic: ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"],
   gemini: ["gemini-2.5-pro", "gemini-1.5-pro", "gemini-1.5-flash", "gemini-1.0-pro"],
   deepseek: ["deepseek-chat", "deepseek-reasoner", "deepseek-coder", "deepseek-r1-distill-llama-70b", "deepseek-r1-distill-qwen-32b"],
-  "local-ollama": ["gemma2:2b", "gemma2:2b-instruct", "gemma2:9b", "gemma2:27b"]
+  "local-ollama": ["gemma2:2b"]
 } as const;
 
 export const DEFAULT_MODELS: Record<Provider, string> = {

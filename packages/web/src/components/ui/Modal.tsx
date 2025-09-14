@@ -48,28 +48,28 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop - translucent is okay */}
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Modal Panel - MUST be fully opaque */}
       <div
         className={cn(
           'relative w-full rounded-2xl bg-neutral-900 text-neutral-100 shadow-2xl',
-          'border border-neutral-700',
+          'border border-neutral-700 lantern-border lantern-glow-strong',
           modalSizes[size]
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between p-6 border-b border-neutral-700">
-            <h2 className="text-lg font-semibold">{title}</h2>
+          <div className="flex items-center justify-between p-6 border-b border-neutral-700 lantern-border">
+            <h2 className="text-lg font-semibold text-lantern-300">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-neutral-800 rounded-lg transition-colors text-neutral-400 hover:text-neutral-200"
+              className="p-1 hover:bg-neutral-800 rounded-lg transition-colors text-lantern-400 hover:text-lantern-300 hover:lantern-glow"
               aria-label="Close modal"
             >
               <X size={20} />
