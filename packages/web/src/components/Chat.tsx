@@ -263,16 +263,20 @@ Key points: ${assistantResponses.map(m => m.content.substring(0, 70).replace(/\n
       }
 
       const data = await response.json();
-      
+
       // Mark first token received (for TTFT)
       turn.markFirstToken();
-      setThinkingPhase("Drafting");
-      
+
+      // Realistic phase transitions with timing
+      setTimeout(() => setThinkingPhase("Drafting"), 200);
+
       // Estimate tokens received for progress tracking
       const contentLength = data.message?.content?.length || 0;
       const estimatedTokens = Math.max(1, Math.floor(contentLength / 4)); // Rough chars to tokens
       setTokensReceived(estimatedTokens);
-      setThinkingPhase("Refining");
+
+      // Final phase transition
+      setTimeout(() => setThinkingPhase("Refining"), 800);
       
       // Check for reasoning summary
       if (data.reasoning) {
