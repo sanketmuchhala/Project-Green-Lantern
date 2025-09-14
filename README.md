@@ -9,8 +9,11 @@
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
 </p>
 
-<img width="1600"  alt="Screenshot 2025-09-06 at 7 57 06 PM" src="https://github.com/user-attachments/assets/c5c41e7d-b5d5-41fd-a4a9-4e755c257ee5" />
-<img width="1600"  alt="Screenshot 2025-09-05 at 5 47 26 PM" src="https://github.com/user-attachments/assets/a05a05a0-a90a-4221-aa70-3035f98d9b1d" />
+<img width="1680" height="1050" alt="Screenshot 2025-09-13 at 10 56 50 PM" src="https://github.com/user-attachments/assets/914cfd84-2f4a-42c6-8f26-dc93cb1d7ba5" />
+<img width="1680" height="1050" alt="Screenshot 2025-09-13 at 10 57 04 PM" src="https://github.com/user-attachments/assets/53aa45b1-b9c9-4c29-8f9b-875065061b3d" />
+<img width="1680" height="1050" alt="Screenshot 2025-09-13 at 10 57 16 PM" src="https://github.com/user-attachments/assets/2e95cd66-0875-4d7f-86e7-3b2bf9410720" />
+<img width="1680" height="1050" alt="Screenshot 2025-09-13 at 10 57 31 PM" src="https://github.com/user-attachments/assets/49017d28-fba2-4d98-8c19-4e8ffd5e63ff" />
+
 
 ##  Purpose: Learn How Your Prompts Really Behave
 
