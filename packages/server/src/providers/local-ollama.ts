@@ -208,7 +208,9 @@ export async function chatWithOllama(opts: {
               }
             }
           }
-          return { text, usage: null, raw: null };
+          // Fix escaped characters and line breaks for proper display
+          const cleanedText = text.replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+          return { text: cleanedText, usage: null, raw: null };
         }
         // Fallback if no reader available
         const txt = await res.text();
@@ -216,7 +218,9 @@ export async function chatWithOllama(opts: {
       }
       
       const json = await res.json() as { message?: { content?: string } };
-      const text = json?.message?.content ?? "";
+      const rawText = json?.message?.content ?? "";
+      // Fix escaped characters and line breaks for proper display
+      const text = rawText.replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
       return { text, usage: null, raw: json };
       
     } catch (e: any) {

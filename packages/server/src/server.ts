@@ -311,11 +311,11 @@ Show your work and explain your reasoning clearly.`;
       ? await enqueueLocal(() => provider.chat(enhancedRequest))
       : await provider.chat(enhancedRequest);
     
-    // Extract reasoning if present
+    // Extract reasoning if present (always check for thinking tags)
     let reasoning = '';
     let cleanedContent = response.message.content;
-    
-    if (chatRequest.show_reasoning && response.message.content.includes('<thinking>')) {
+
+    if (response.message.content.includes('<thinking>')) {
       const thinkingMatch = response.message.content.match(/<thinking>([\s\S]*?)<\/thinking>/);
       if (thinkingMatch) {
         reasoning = thinkingMatch[1].trim();
