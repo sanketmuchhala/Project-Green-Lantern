@@ -1,6 +1,76 @@
 import { ChatRequest, ChatResponse } from '../types.js';
+import http from 'http';
+import https from 'https';
 
 export type OllamaMsg = { role: "system" | "user" | "assistant"; content: string };
+
+// Keep-alive agents for connection reuse
+const httpAgent = new http.Agent({
+  keepAlive: true,
+  maxSockets: 4,
+  timeout: 5000
+});
+
+const httpsAgent = new https.Agent({
+  keepAlive: true,
+  maxSockets: 4,
+  timeout: 5000
+});
+
+function agentFor(url: string) {
+  return url.startsWith('https') ? httpsAgent : httpAgent;
+}
+
+// Enhanced gemma2 detection
+function isGemma2(model?: string): boolean {
+  return !!(model && /^gemma2/i.test(model));
+}
+
+// Prewarming functionality
+let prewarmed = false;
+async function prewarm(baseURL: string, model: string): Promise<void> {
+  if (prewarmed || !isGemma2(model)) return;
+
+  try {
+    const ac = new AbortController();
+    const timeout = setTimeout(() => ac.abort(), 5000);
+
+    await fetch(`${baseURL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: '.' }],
+        stream: false,
+        options: { num_predict: 1 }
+      }),
+      agent: agentFor(baseURL),
+      signal: ac.signal
+    }).catch(() => {}); // Ignore errors during prewarming
+
+    clearTimeout(timeout);
+    prewarmed = true;
+  } catch {
+    // Prewarming failure is non-critical
+  }
+}
+
+// Performance defaults for gemma2
+const GEMMA2_PERFORMANCE_DEFAULTS = {
+  temperature: 0.2,
+  top_p: 0.9,
+  top_k: 40,
+  num_ctx: 1024,
+  num_predict: 128,
+  num_thread: 6,
+  use_mmap: true,
+  use_mlock: false,
+  repeat_penalty: 1.05,
+  stream: true,
+  num_batch: 256,
+  low_vram: true,
+  flash_attention: true
+};
 
 export type OllamaConfig = {
   baseURL?: string;
@@ -43,42 +113,48 @@ export async function pingOllama(baseURL?: string) {
 }
 
 export async function chatWithOllama(opts: {
-  config: OllamaConfig; 
-  messages: OllamaMsg[]; 
+  config: OllamaConfig;
+  messages: OllamaMsg[];
   signal?: AbortSignal;
 }) {
   const baseURL = normBaseURL(opts.config.baseURL);
   const pm = opts.config.performanceMode !== false; // default ON
   const stream = opts.config.stream ?? true; // DEFAULT STREAMING ON for local
-  
-  // Optimized settings for gemma2:2b (lightweight and efficient)
-  const isGemma2b = opts.config.model.includes('gemma2:2b');
+
+  // Enhanced gemma2 detection and prewarming
+  const isGemmaModel = isGemma2(opts.config.model);
+
+  // Prewarm the model for faster first response
+  await prewarm(baseURL, opts.config.model);
+
+  // Use performance defaults for gemma2, fallback to existing logic
+  const baseDefaults = isGemmaModel && pm ? GEMMA2_PERFORMANCE_DEFAULTS : {};
 
   const options: any = {
-    temperature: opts.config.temperature ?? 0.7,
-    // Reduced context window for better performance
-    num_ctx: opts.config.num_ctx ?? (pm ? 1024 : 2048),
-    // Conservative token generation for efficiency
+    temperature: opts.config.temperature ?? baseDefaults.temperature ?? 0.7,
+    // Context window - aggressive optimization for gemma2
+    num_ctx: opts.config.num_ctx ?? baseDefaults.num_ctx ?? (pm ? 1024 : 2048),
+    // Token generation limits
     ...(typeof opts.config.max_tokens === "number"
-        ? { num_predict: Math.min(opts.config.max_tokens, pm ? 128 : 256) }
-        : { num_predict: pm ? 128 : 256 }),
-    // Optimized sampling parameters
-    top_p: opts.config.top_p ?? 0.9,
-    top_k: opts.config.top_k ?? 40,
-    // Reduced thread count to be gentle on system
-    num_thread: opts.config.num_thread ?? (pm ? 4 : 6),
+        ? { num_predict: Math.min(opts.config.max_tokens, baseDefaults.num_predict ?? (pm ? 128 : 256)) }
+        : { num_predict: baseDefaults.num_predict ?? (pm ? 128 : 256) }),
+    // Sampling parameters
+    top_p: opts.config.top_p ?? baseDefaults.top_p ?? 0.9,
+    top_k: opts.config.top_k ?? baseDefaults.top_k ?? 40,
+    // Thread optimization
+    num_thread: opts.config.num_thread ?? baseDefaults.num_thread ?? (pm ? 4 : 6),
     // Memory optimizations
-    use_mmap: opts.config.use_mmap ?? true,
-    use_mlock: opts.config.use_mlock ?? false,
-    // Smaller batch size for lower memory usage
-    num_batch: pm ? 256 : 512,
-    repeat_penalty: 1.1,
-    // GPU settings - single GPU for efficiency
+    use_mmap: opts.config.use_mmap ?? baseDefaults.use_mmap ?? true,
+    use_mlock: opts.config.use_mlock ?? baseDefaults.use_mlock ?? false,
+    // Batch processing
+    num_batch: baseDefaults.num_batch ?? (pm ? 256 : 512),
+    repeat_penalty: baseDefaults.repeat_penalty ?? 1.1,
+    // GPU settings
     num_gpu: opts.config.num_gpu ?? 1,
-    // Enable low VRAM mode for system optimization
-    low_vram: true,
-    // Enable flash attention for gemma2:2b
-    flash_attention: opts.config.flash_attention ?? isGemma2b
+    // Memory optimization flags
+    low_vram: baseDefaults.low_vram ?? true,
+    // Flash attention for gemma2
+    flash_attention: opts.config.flash_attention ?? baseDefaults.flash_attention ?? isGemmaModel
   };
 
   const body: any = {
@@ -97,6 +173,7 @@ export async function chatWithOllama(opts: {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        agent: agentFor(baseURL),
         signal: opts.signal || ac.signal
       });
       clearTimeout(timeout);

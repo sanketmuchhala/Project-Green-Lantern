@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, BarChart3, List } from 'lucide-react';
+import { ArrowLeft, BarChart3, List, Zap } from 'lucide-react';
 
 const PromptOpsLanding: React.FC = () => {
   return (
@@ -24,7 +24,7 @@ const PromptOpsLanding: React.FC = () => {
       </div>
 
       {/* Main Navigation Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {/* Dashboard Card */}
         <Link
           to="/dashboard"
@@ -87,6 +87,39 @@ const PromptOpsLanding: React.FC = () => {
 
           <div className="flex items-center text-lantern-400 group-hover:text-lantern-300 transition-colors">
             <span className="font-medium">View Events</span>
+            <span className="ml-2 transform group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </Link>
+
+        {/* Performance Benchmark Card */}
+        <Link
+          to="/benchmark"
+          className="group bg-neutral-900 border border-neutral-700 rounded-2xl p-8 hover:border-lantern-600 transition-all duration-300 lantern-glow hover:lantern-glow-strong"
+        >
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-lantern-600 rounded-xl lantern-glow-strong">
+              <Zap size={32} className="text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Performance Benchmark</h2>
+          </div>
+
+          <p className="text-neutral-400 mb-6 leading-relaxed">
+            Test TTFT and latency performance for your local Ollama models. Run standardized benchmarks to optimize settings.
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="text-center p-3 bg-neutral-800 rounded-lg">
+              <div className="text-lg font-bold text-lantern-300">3</div>
+              <div className="text-xs text-neutral-500">Test Prompts</div>
+            </div>
+            <div className="text-center p-3 bg-neutral-800 rounded-lg">
+              <div className="text-lg font-bold text-lantern-300">p50/p95</div>
+              <div className="text-xs text-neutral-500">Statistics</div>
+            </div>
+          </div>
+
+          <div className="flex items-center text-lantern-400 group-hover:text-lantern-300 transition-colors">
+            <span className="font-medium">Run Benchmark</span>
             <span className="ml-2 transform group-hover:translate-x-1 transition-transform">→</span>
           </div>
         </Link>

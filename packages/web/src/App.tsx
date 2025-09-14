@@ -8,6 +8,7 @@ import { initializeDatabase } from './lib/db';
 import MetricsDashboard from './promptops/MetricsDashboard';
 import EventsPage from './promptops/EventsPage';
 import PromptOpsLanding from './promptops/PromptOpsLanding';
+import BenchmarkPage from './promptops/BenchmarkPage';
 
 
 function App() {
@@ -121,6 +122,7 @@ function App() {
         <Route path="/promptops" element={<PromptOpsLanding />} />
         <Route path="/dashboard" element={<MetricsDashboard />} />
         <Route path="/events" element={<EventsPage />} />
+        <Route path="/benchmark" element={<BenchmarkPage />} />
       </Routes>
       <ConditionalPromptOpsLink />
     </Router>

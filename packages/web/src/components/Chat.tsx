@@ -19,6 +19,9 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [reasoningEnabled, setReasoningEnabled] = useState(false);
+
+  // Debouncing state for send button
+  const [sendDebounceTimer, setSendDebounceTimer] = useState<NodeJS.Timeout | null>(null);
   
   // ThinkingHUD state
   const [thinkingStartTime, setThinkingStartTime] = useState<number | null>(null);
@@ -120,6 +123,22 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
     e.preventDefault();
     if (!input.trim() || isLoading || !hasValidKey || !conversation) return;
 
+    // Debounce rapid submissions (prevent double-click issues)
+    if (sendDebounceTimer) {
+      clearTimeout(sendDebounceTimer);
+    }
+
+    const submitTimer = setTimeout(() => {
+      setSendDebounceTimer(null);
+      performSubmit();
+    }, 150); // 150ms debounce
+
+    setSendDebounceTimer(submitTimer);
+  };
+
+  const performSubmit = async () => {
+    if (!input.trim() || isLoading || !hasValidKey || !conversation) return;
+
     const currentInput = input.trim();
     setInput('');
     setIsLoading(true);
@@ -169,30 +188,45 @@ export const Chat: React.FC<ChatProps> = ({ onOpenSettings }) => {
       // Add current user message
       messagesToSend.push({ role: 'user', content: currentInput, timestamp: Date.now() });
 
-      // Apply performance trimming for local-ollama when performance mode is enabled
-      if (conversationProvider === 'local-ollama' && settings?.performanceMode !== false) {
-        // Keep only the last 6 turns (12 messages: 6 user + 6 assistant)
-        const maxMessages = 12;
-        if (messagesToSend.length > maxMessages) {
-          // Create a conversation summary from the older messages
-          const olderMessages = messagesToSend.slice(0, -maxMessages);
-          const recentMessages = messagesToSend.slice(-maxMessages);
-          
-          // Simple summarization of older context
-          const userMessages = olderMessages.filter(m => m.role === 'user');
-          const assistantMessages = olderMessages.filter(m => m.role === 'assistant');
-          
-          const summaryContent = `Previous conversation context (${olderMessages.length} messages):
-Topics discussed: ${userMessages.slice(0, 3).map(m => m.content.substring(0, 60) + '...').join('; ')}
-Key responses provided: ${assistantMessages.slice(0, 2).map(m => m.content.substring(0, 80) + '...').join('; ')}`;
+      // Enhanced performance trimming for local-ollama with gemma2 detection
+      const isGemma2 = conversation.model.toLowerCase().includes('gemma2');
+      const performanceMode = settings?.performanceMode !== false;
 
-          // Keep system messages and add summary, then recent messages
+      if (conversationProvider === 'local-ollama' && performanceMode) {
+        // More aggressive trimming for gemma2 models
+        const maxTurns = isGemma2 ? 6 : 8; // 6 turns for gemma2, 8 for others
+        const maxMessages = maxTurns * 2; // Each turn is user + assistant
+
+        if (messagesToSend.length > maxMessages) {
+          // Preserve system messages
           const systemMessages = messagesToSend.filter(m => m.role === 'system');
-          messagesToSend = [
-            ...systemMessages,
-            { role: 'system', content: summaryContent, timestamp: Date.now() },
-            ...recentMessages
-          ];
+          const conversationMessages = messagesToSend.filter(m => m.role !== 'system');
+
+          if (conversationMessages.length > maxMessages) {
+            // Create a more sophisticated summary
+            const olderMessages = conversationMessages.slice(0, -(maxMessages - 1)); // Leave room for current message
+            const recentMessages = conversationMessages.slice(-(maxMessages - 1));
+
+            // Extract key information for summary
+            const userQueries = olderMessages.filter(m => m.role === 'user').slice(-3);
+            const assistantResponses = olderMessages.filter(m => m.role === 'assistant').slice(-2);
+
+            const summaryContent = `[Previous conversation context - ${olderMessages.length} messages]
+Recent topics: ${userQueries.map(m => m.content.substring(0, 50).replace(/\n/g, ' ')).join(' | ')}
+Key points: ${assistantResponses.map(m => m.content.substring(0, 70).replace(/\n/g, ' ')).join(' | ')}`;
+
+            messagesToSend = [
+              ...systemMessages,
+              { role: 'system', content: summaryContent, timestamp: Date.now() },
+              ...recentMessages
+            ];
+          }
+        }
+
+        // Input limiting for large prompts (performance optimization)
+        if (currentInput.length > 4000) {
+          const trimmed = currentInput.substring(0, 4000) + '\n\n[Note: Input was trimmed to 4000 characters for optimal performance]';
+          messagesToSend[messagesToSend.length - 1].content = trimmed;
         }
       }
 

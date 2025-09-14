@@ -11,6 +11,7 @@ import { localOllamaProvider, pingOllama, chatWithOllama } from './providers/loc
 import { performWebSearch, extractSearchQuery, enhancePromptWithWebResults } from './services/webSearch.js';
 import { orchestrator } from './orchestrator/index.js';
 import { localMetrics } from './routes/localMetrics.js';
+import { enqueueLocal, getLocalQueueStatus } from './queue/localQueue.js';
 
 dotenv.config({ path: '.env.local' });
 
@@ -81,6 +82,11 @@ app.get('/health', (req, res) => {
 
 // Local metrics endpoint
 app.get('/v1/metrics', localMetrics);
+
+// Queue status endpoint for local monitoring
+app.get('/v1/queue/status', (req, res) => {
+  res.json(getLocalQueueStatus());
+});
 
 // Provider ping test endpoint  
 app.get('/v1/ping', async (req, res) => {
@@ -299,7 +305,11 @@ Show your work and explain your reasoning clearly.`;
     // Get provider and make request with enhanced messages
     const provider = providers[providerName];
     const enhancedRequest = { ...chatRequest, messages: enhancedMessages };
-    const response = await provider.chat(enhancedRequest);
+
+    // Use queue for local-ollama to ensure single concurrency
+    const response = providerName === 'local-ollama'
+      ? await enqueueLocal(() => provider.chat(enhancedRequest))
+      : await provider.chat(enhancedRequest);
     
     // Extract reasoning if present
     let reasoning = '';
