@@ -113,7 +113,7 @@ export function buildRAGContext(hits: Ranked, maxChars = 1200) {
   for (const h of hits) {
     const s = (h.snippet || "").slice(0, 400);
     const host = h.host || (h.url.match(/^https?:\/\/([^/]+)/)?.[1] || "");
-    const chunk = `[${idx}] ${host} — ${s}`;
+    const chunk = `[${idx}] ${host} - ${s}`;
     
     if (total + chunk.length > maxChars) break;
     
@@ -134,7 +134,7 @@ export function buildRAGContext(hits: Ranked, maxChars = 1200) {
 
 export function formatRAGSnippets(context: any[]): string {
   return context
-    .map(c => `[${c.idx}] ${c.host} — ${c.snippet}`)
+    .map(c => `[${c.idx}] ${c.host} - ${c.snippet}`)
     .join('\n\n');
 }
 

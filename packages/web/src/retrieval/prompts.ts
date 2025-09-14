@@ -20,7 +20,7 @@ Keep total under the token limit. If uncertain, ask one clarifying question.`;
 
 export function buildRAGPrompt(userQuery: string, snippets: any[]): string {
   const ragBlock = `Retrieved snippets (condensed):
-${snippets.map(s => `[${s.idx}] ${s.host} — ${s.snippet}`).join('\n')}
+${snippets.map(s => `[${s.idx}] ${s.host} - ${s.snippet}`).join('\n')}
 
 ---
 

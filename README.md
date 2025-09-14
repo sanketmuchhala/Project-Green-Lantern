@@ -1,4 +1,4 @@
-# Lantern — Master Your AI Conversations with Intelligent Prompt Analytics
+# Lantern - Master Your AI Conversations with Intelligent Prompt Analytics
 
 **Happy Prompting!** Build better prompts, understand what works, and optimize your AI interactions with real-time insights. Lantern combines a distraction-free chat interface with powerful analytics to help you learn how your prompts behave, identify what's going wrong, and improve your results.
 
@@ -47,36 +47,36 @@
 ##  Why Lantern?
 
 ### ** Thoughtful Design**
-- **Minimal, fast UI** — Clean dark interface that gets out of your way
-- **Smooth streaming** — No jarring jumps or scroll issues during responses
-- **Thinking HUD** — See generation progress without cognitive overload
-- **Focus-first** — Everything optimized for deep work and experimentation
+- **Minimal, fast UI** - Clean dark interface that gets out of your way
+- **Smooth streaming** - No jarring jumps or scroll issues during responses
+- **Thinking HUD** - See generation progress without cognitive overload
+- **Focus-first** - Everything optimized for deep work and experimentation
 
 ### ** Universal Compatibility**
-- **Cloud + Local** — BYOK for OpenAI/Anthropic/Gemini/DeepSeek OR run Ollama locally
-- **Quantized Models** — Optimized for Gemma2:2b (1.6GB), Llama, Mistral on Apple Silicon
-- **Performance Mode** — Ultra-fast responses for rapid iteration
-- **Auto-detection** — Smart provider selection based on model names
+- **Cloud + Local** - BYOK for OpenAI/Anthropic/Gemini/DeepSeek OR run Ollama locally
+- **Quantized Models** - Optimized for Gemma2:2b (1.6GB), Llama, Mistral on Apple Silicon
+- **Performance Mode** - Ultra-fast responses for rapid iteration
+- **Auto-detection** - Smart provider selection based on model names
 
 ### ** Data-Driven Insights**
-- **100% Private** — All analytics data stays in your browser (IndexedDB)
-- **Real-time Metrics** — Live charts update as you chat
-- **Historical Analysis** — Track improvements over weeks and months
-- **Export Capabilities** — Save insights for reports and presentations
+- **100% Private** - All analytics data stays in your browser (IndexedDB)
+- **Real-time Metrics** - Live charts update as you chat
+- **Historical Analysis** - Track improvements over weeks and months
+- **Export Capabilities** - Save insights for reports and presentations
 
 ### ** Privacy & Security**
-- **Local-first** — No data ever leaves your machine
-- **BYOK principle** — You control your API keys and data
-- **Zero telemetry** — We never see your prompts or responses
-- **Offline capable** — Works completely offline with local models
+- **Local-first** - No data ever leaves your machine
+- **BYOK principle** - You control your API keys and data
+- **Zero telemetry** - We never see your prompts or responses
+- **Offline capable** - Works completely offline with local models
 
 ##  Quick Start
 
 ### Option 1: Cloud Models (BYOK)
-1. **Get API Keys** — Grab keys from OpenAI, Anthropic, Google, or DeepSeek
-2. **Open Settings** — Add your provider key in the settings panel
-3. **Pick a Model** — Select from latest GPT-4, Claude, Gemini, or DeepSeek models
-4. **Start Chatting** — Begin experimenting and watch the analytics
+1. **Get API Keys** - Grab keys from OpenAI, Anthropic, Google, or DeepSeek
+2. **Open Settings** - Add your provider key in the settings panel
+3. **Pick a Model** - Select from latest GPT-4, Claude, Gemini, or DeepSeek models
+4. **Start Chatting** - Begin experimenting and watch the analytics
 
 ### Option 2: Local with Ollama (Recommended for Learning)
 ```bash
@@ -128,16 +128,16 @@ Visit `/promptscope` in the app to access your **Prompt Analytics Dashboard**:
 - Sweet spot identification for your use cases
 
 ### ** Real-time System Metrics**
-- **CPU & Memory Usage** — Monitor system load during inference
-- **Ollama Status** — Model loading, GPU utilization
-- **Network Latency** — API response times
-- **Error Monitoring** — Real-time failure detection
+- **CPU & Memory Usage** - Monitor system load during inference
+- **Ollama Status** - Model loading, GPU utilization
+- **Network Latency** - API response times
+- **Error Monitoring** - Real-time failure detection
 
 ### ** Advanced Analytics**
-- **Prompt Engineering Insights** — See what structures work best
-- **Temperature Impact Analysis** — Understand creativity vs consistency
-- **Token Efficiency Metrics** — Cost optimization opportunities
-- **Conversation Flow Analysis** — Multi-turn effectiveness
+- **Prompt Engineering Insights** - See what structures work best
+- **Temperature Impact Analysis** - Understand creativity vs consistency
+- **Token Efficiency Metrics** - Cost optimization opportunities
+- **Conversation Flow Analysis** - Multi-turn effectiveness
 
 ##  Architecture
 
@@ -217,31 +217,60 @@ flowchart TB
 
 ### ** Thinking HUD**
 Watch your AI "think" with beautiful, non-distracting progress indicators:
-- **Generation Phases** — Planning → Drafting → Refining
-- **Live Metrics** — Tokens/second, elapsed time, progress estimation
-- **Safe Visibility** — Abstract progress without exposing raw reasoning
-- **Collapsible Details** — Optional deeper insights when available
+- **Generation Phases** - Planning → Drafting → Refining
+- **Live Metrics** - Tokens/second, elapsed time, progress estimation
+- **Safe Visibility** - Abstract progress without exposing raw reasoning
+- **Collapsible Details** - Optional deeper insights when available
 
 ### ** Smooth Experience**
-- **No-Jump Scrolling** — Perfect scroll behavior during streaming
-- **Sticky Auto-Scroll** — Follows responses intelligently
-- **Focus Management** — Never lose your place while typing
-- **Responsive Design** — Works on desktop, tablet, and mobile
+- **No-Jump Scrolling** - Perfect scroll behavior during streaming
+- **Sticky Auto-Scroll** - Follows responses intelligently
+- **Focus Management** - Never lose your place while typing
+- **Responsive Design** - Works on desktop, tablet, and mobile
 
 ### ** Performance Optimization**
 
-#### **Quantized Local Models**
-- **Gemma2:2b** — Q4_0 quantized (1.6GB) for ultra-fast responses
-- **Smart Parameter Tuning** — Automatically optimized for quantized models
-- **GPU Acceleration** — Metal/CUDA support when available
-- **Memory Efficient** — 70% less RAM usage vs full-precision models
+#### **Optimized Gemma2:2b Setup (M2 MacBook Pro)**
+Achieve **TTFT < 1500ms** and **p50 latency < 3500ms** with these optimizations:
+
+**Environment Setup:**
+```bash
+# Single concurrency for optimal performance
+export OLLAMA_NUM_PARALLEL=1
+ollama serve
+
+# Pull optimized model
+ollama pull gemma2:2b
+```
+
+**Performance Mode Settings (Auto-Applied for Gemma2):**
+- **Context Window**: 1024 tokens (aggressive optimization)
+- **Output Limit**: 128 tokens for rapid responses
+- **Temperature**: 0.2 for consistent performance
+- **Threading**: 6 threads (M2 thermal optimization)
+- **Memory**: `use_mmap: true`, `low_vram: true`
+- **Flash Attention**: Enabled for gemma2 models
+
+**Request Management:**
+- **Single Concurrency Queue** - Only one request at a time
+- **Connection Keep-Alive** - HTTP connection reuse
+- **Model Pre-warming** - Eliminates cold start latency
+- **Smart Context Trimming** - Last 6 turns + summary for older context
 
 #### **Performance Mode (Local)**
 Perfect for rapid prompt experimentation:
-- **Reduced Context** (512 tokens) for maximum speed
-- **Short Responses** (64 tokens) for quick iteration
+- **Reduced Context** (1024 tokens) for maximum speed
+- **Short Responses** (128 tokens) for quick iteration
 - **Multi-threading** optimized for your hardware
-- **Conversation Management** — Auto-trim to maintain context
+- **Conversation Management** - Auto-trim to maintain context
+- **Input Limiting** - Warns/trims prompts > 4k characters
+
+#### **Benchmark & Monitor Performance**
+Access `/benchmark` page to:
+- **Run Micro-benchmarks** - 3 standard test prompts
+- **Monitor TTFT/Latency** - Real-time p50/p95 statistics
+- **Validate Settings** - Ensure targets are met
+- **Compare Configurations** - Test different parameter combinations
 
 ##  Development & Setup
 
@@ -296,44 +325,44 @@ lantern/
 ##  Analytics Dashboard Components
 
 ### ** Core Visualizations**
-- **Event Timeline** — Time-series plot of all interactions
-- **Latency Heatmap** — Response time patterns by hour/day
-- **Context Usage** — Prompt vs response token ratios
-- **Quality Trends** — Success rates over time
-- **Cost Analysis** — Spending breakdown by provider/model
+- **Event Timeline** - Time-series plot of all interactions
+- **Latency Heatmap** - Response time patterns by hour/day
+- **Context Usage** - Prompt vs response token ratios
+- **Quality Trends** - Success rates over time
+- **Cost Analysis** - Spending breakdown by provider/model
 
 ### ** Advanced Analytics**
-- **Prompt Engineering Insights** — What patterns work best
-- **Model Comparison Matrix** — Head-to-head performance
-- **Error Pattern Analysis** — Why prompts fail
-- **Conversation Flow Metrics** — Multi-turn effectiveness
-- **System Performance** — Resource usage and bottlenecks
+- **Prompt Engineering Insights** - What patterns work best
+- **Model Comparison Matrix** - Head-to-head performance
+- **Error Pattern Analysis** - Why prompts fail
+- **Conversation Flow Metrics** - Multi-turn effectiveness
+- **System Performance** - Resource usage and bottlenecks
 
 ### ** Real-time Monitoring**
-- **Live System Stats** — CPU, memory, network
-- **Model Status** — Loading, ready, error states
-- **Queue Management** — Request processing pipeline
-- **Health Checks** — Provider availability
+- **Live System Stats** - CPU, memory, network
+- **Model Status** - Loading, ready, error states
+- **Queue Management** - Request processing pipeline
+- **Health Checks** - Provider availability
 
 ##  Privacy & Security
 
 ### ** Local-First Architecture**
-- **Browser Storage** — All analytics data in IndexedDB
-- **No Cloud Dependency** — Works completely offline
-- **Client-Side Processing** — Analytics computed locally
-- **Export Control** — You decide what to share
+- **Browser Storage** - All analytics data in IndexedDB
+- **No Cloud Dependency** - Works completely offline
+- **Client-Side Processing** - Analytics computed locally
+- **Export Control** - You decide what to share
 
 ### ** Security Best Practices**
-- **API Key Protection** — Never logged or transmitted
-- **Request Sanitization** — Clean all inputs
-- **HTTPS Enforcement** — Secure connections only
-- **CSP Headers** — Content Security Policy protection
+- **API Key Protection** - Never logged or transmitted
+- **Request Sanitization** - Clean all inputs
+- **HTTPS Enforcement** - Secure connections only
+- **CSP Headers** - Content Security Policy protection
 
 ### ** Data Transparency**
-- **Open Analytics** — All metrics calculations visible
-- **Data Portability** — Easy export in standard formats
-- **Selective Sharing** — Choose what to include in exports
-- **Audit Trail** — Track all data operations
+- **Open Analytics** - All metrics calculations visible
+- **Data Portability** - Easy export in standard formats
+- **Selective Sharing** - Choose what to include in exports
+- **Audit Trail** - Track all data operations
 
 ##  Use Cases & Workflows
 
