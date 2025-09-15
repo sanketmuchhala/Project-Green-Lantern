@@ -1,6 +1,12 @@
 # Lantern - Master Your AI Conversations with Intelligent Prompt Analytics
 
-**Happy Prompting!** Build better prompts, understand what works, and optimize your AI interactions with real-time insights. Lantern combines a distraction-free chat interface with powerful analytics to help you learn how your prompts behave, identify what's going wrong, and improve your results.
+**Build better prompts, understand what works, and optimize your AI interactions with real-time insights.** Lantern combines a distraction-free chat interface with powerful analytics to help you learn how your prompts behave, identify what's going wrong, and improve your results systematically.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=for-the-badge" alt="Production Ready">
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="MIT License">
+  <img src="https://img.shields.io/badge/Privacy-Local%20First-success?style=for-the-badge" alt="Local First">
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
@@ -9,8 +15,10 @@
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
 </p>
 
-<img width="1600"  alt="Screenshot 2025-09-06 at 7 57 06 PM" src="https://github.com/user-attachments/assets/c5c41e7d-b5d5-41fd-a4a9-4e755c257ee5" />
-<img width="1600"  alt="Screenshot 2025-09-05 at 5 47 26 PM" src="https://github.com/user-attachments/assets/a05a05a0-a90a-4221-aa70-3035f98d9b1d" />
+<img width="1680" height="1050" alt="Lantern Analytics Dashboard - Real-time prompt performance insights" src="https://github.com/user-attachments/assets/914cfd84-2f4a-42c6-8f26-dc93cb1d7ba5" />
+<img width="1680" height="1050" alt="Lantern Chat Interface - Clean, distraction-free AI conversations" src="https://github.com/user-attachments/assets/53aa45b1-b9c9-4c29-8f9b-875065061b3d" />
+<img width="1680" height="1050" alt="Lantern Performance Monitoring - Live system metrics and optimization" src="https://github.com/user-attachments/assets/2e95cd66-0875-4d7f-86e7-3b2bf9410720" />
+<img width="1680" height="1050" alt="Lantern Provider Management - Support for all major AI providers" src="https://github.com/user-attachments/assets/49017d28-fba2-4d98-8c19-4e8ffd5e63ff" />
 
 ##  Purpose: Learn How Your Prompts Really Behave
 
@@ -250,8 +258,8 @@ Perfect for rapid prompt experimentation:
 ### **Installation**
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/lantern.git
-cd lantern
+git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git
+cd Project-Green-Lantern
 
 # Install dependencies
 pnpm install
@@ -427,8 +435,10 @@ MIT License - see [LICENSE](LICENSE) for full details.
 
 ---
 
-## **Happy Prompting!** 
+## **Ready to Master Your AI Conversations?**
 
-*Lantern: Master your AI conversations with data-driven insights. Learn what works, fix what doesn't, and optimize systematically.*
+*Transform how you interact with AI. Build better prompts, understand what works, and optimize systematically with real-time insights.*
 
-**Start your journey**: `pnpm install && pnpm run dev`
+**Get Started**: `git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git && cd Project-Green-Lantern && pnpm install && pnpm run dev`
+
+**Experience the future of prompt engineering with Lantern.**
