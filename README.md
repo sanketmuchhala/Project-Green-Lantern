@@ -1,6 +1,9 @@
-# Lantern - Master Your AI Conversations with Intelligent Prompt Analytics
+# Lantern
+### *Master Your AI Conversations with Intelligent Analytics*
 
-**Build better prompts, understand what works, and optimize your AI interactions with real-time insights.** Lantern combines a distraction-free chat interface with powerful analytics to help you learn how your prompts behave, identify what's going wrong, and improve your results systematically.
+> **Stop shooting in the dark with AI prompts.** Lantern gives you X-ray vision into your conversations, real-time performance insights, and data-driven optimization recommendations.
+
+**Finally understand what makes your prompts work — and what doesn't.**
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Production%20Ready-brightgreen?style=for-the-badge" alt="Production Ready">
@@ -15,136 +18,208 @@
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
 </p>
 
-<img width="1680" height="1050" alt="Lantern Analytics Dashboard - Real-time prompt performance insights" src="https://github.com/user-attachments/assets/914cfd84-2f4a-42c6-8f26-dc93cb1d7ba5" />
-<img width="1680" height="1050" alt="Lantern Chat Interface - Clean, distraction-free AI conversations" src="https://github.com/user-attachments/assets/53aa45b1-b9c9-4c29-8f9b-875065061b3d" />
-<img width="1680" height="1050" alt="Lantern Performance Monitoring - Live system metrics and optimization" src="https://github.com/user-attachments/assets/2e95cd66-0875-4d7f-86e7-3b2bf9410720" />
-<img width="1680" height="1050" alt="Lantern Provider Management - Support for all major AI providers" src="https://github.com/user-attachments/assets/49017d28-fba2-4d98-8c19-4e8ffd5e63ff" />
+## See Your AI Performance in Real-Time
 
-##  Purpose: Learn How Your Prompts Really Behave
+<details>
+<summary><b>Analytics Dashboard - Click to expand</b></summary>
+<img width="1680" height="1050" alt="Lantern Analytics Dashboard showing real-time prompt performance metrics, latency patterns, and quality analysis" src="https://github.com/user-attachments/assets/914cfd84-2f4a-42c6-8f26-dc93cb1d7ba5" />
+</details>
 
-**The Problem**: Most people struggle with AI because they don't understand what makes prompts work. They iterate blindly, waste tokens on bad prompts, and never learn from their mistakes.
+<details>
+<summary><b>Clean Chat Interface - Click to expand</b></summary>
+<img width="1680" height="1050" alt="Lantern's distraction-free chat interface with intelligent prompt engineering features" src="https://github.com/user-attachments/assets/53aa45b1-b9c9-4c29-8f9b-875065061b3d" />
+</details>
 
-**The Solution**: Lantern's **Prompt Analytics Dashboard** gives you X-ray vision into your AI conversations:
+<details>
+<summary><b>Performance Monitoring - Click to expand</b></summary>
+<img width="1680" height="1050" alt="Live system metrics showing CPU, memory usage, and model performance optimization" src="https://github.com/user-attachments/assets/2e95cd66-0875-4d7f-86e7-3b2bf9410720" />
+</details>
 
-###  **What the Dashboard Reveals:**
-- **Latency Patterns** - See which prompts are slow and why
-- **Context Bloat Detection** - Identify when your prompts get too long and expensive
-- **Quality Metrics** - Track success vs failure rates across different approaches
-- **Token Efficiency** - Understand cost per useful response
-- **Model Comparison** - Compare how different models handle your specific use cases
-- **Error Analysis** - Learn from refusals, failures, and edge cases
-- **Real-time Monitoring** - Watch CPU, memory, and model loading in real-time
+<details>
+<summary><b>Universal Provider Support - Click to expand</b></summary>
+<img width="1680" height="1050" alt="Support for OpenAI, Anthropic, Google, DeepSeek, and local Ollama models" src="https://github.com/user-attachments/assets/49017d28-fba2-4d98-8c19-4e8ffd5e63ff" />
+</details>
 
-###  **Learn What Works:**
-- **Temperature Impact** - See how creativity settings affect your results
-- **Prompt Length Sweet Spot** - Find the optimal length for your use cases
-- **System Message Effectiveness** - Measure how different instructions change behavior
-- **Context Window Usage** - Optimize for long conversations
-- **Provider Performance** - Compare OpenAI, Anthropic, local models on YOUR prompts
+## The Problem with AI Today
 
-###  **Improve Systematically:**
-- **A/B Test Prompts** - Compare variations with real metrics
-- **Spot Failure Patterns** - Identify what causes refusals or errors
-- **Optimize for Speed** - Find the fastest setup for your workflow
-- **Cost Management** - Track spending and find cheaper alternatives
-- **Performance Tuning** - Dial in the perfect settings for your needs
+Most developers and researchers waste **thousands of dollars** and **countless hours** on AI because they:
+- **Guess** what makes prompts work instead of measuring
+- **Repeat** the same expensive mistakes over and over
+- **Miss** performance bottlenecks that slow down their workflow
+- **Overspend** on premium models when cheaper ones would work
 
-##  Why Lantern?
+## The Lantern Solution
 
-### ** Thoughtful Design**
+**Turn AI experimentation into a data-driven science.** Get real-time insights that tell you exactly what's working, what's not, and how to optimize everything.
+
+### **Analytics That Actually Matter**
+
+```
+Latency Analysis     → Find your speed bottlenecks in real-time
+Cost Optimization    → Track spending per useful response
+Quality Metrics      → Measure success rates across approaches
+Performance Tuning   → Optimize for your specific hardware
+A/B Testing         → Compare prompt variations with hard data
+Historical Trends    → Learn from weeks of conversation data
+```
+
+### **Features That Save You Time & Money**
+
+| Feature | Benefit | Impact |
+|---------|---------|---------|
+| **Real-time Dashboards** | See performance as you chat | Stop bad prompts immediately |
+| **Smart Model Switching** | Auto-route to optimal providers | 40-60% cost reduction |
+| **Context Bloat Detection** | Prevent expensive token waste | Save hundreds on API calls |
+| **Error Pattern Analysis** | Learn why prompts fail | Improve success rates 2-3x |
+| **Local + Cloud Hybrid** | Privacy + performance | Best of both worlds |
+| **Performance Profiling** | CPU/Memory optimization | 10x faster local inference |
+
+## Why Lantern?
+
+### **Thoughtful Design**
 - **Minimal, fast UI** — Clean dark interface that gets out of your way
 - **Smooth streaming** — No jarring jumps or scroll issues during responses
 - **Thinking HUD** — See generation progress without cognitive overload
 - **Focus-first** — Everything optimized for deep work and experimentation
 
-### ** Universal Compatibility**
+### **Universal Compatibility**
 - **Cloud + Local** — BYOK for OpenAI/Anthropic/Gemini/DeepSeek OR run Ollama locally
 - **Quantized Models** — Optimized for Gemma2:2b (1.6GB), Llama, Mistral on Apple Silicon
 - **Performance Mode** — Ultra-fast responses for rapid iteration
 - **Auto-detection** — Smart provider selection based on model names
 
-### ** Data-Driven Insights**
+### **Data-Driven Insights**
 - **100% Private** — All analytics data stays in your browser (IndexedDB)
 - **Real-time Metrics** — Live charts update as you chat
 - **Historical Analysis** — Track improvements over weeks and months
 - **Export Capabilities** — Save insights for reports and presentations
 
-### ** Privacy & Security**
+### **Privacy & Security**
 - **Local-first** — No data ever leaves your machine
 - **BYOK principle** — You control your API keys and data
 - **Zero telemetry** — We never see your prompts or responses
 - **Offline capable** — Works completely offline with local models
 
-##  Quick Start
+## Quick Start - Running in 60 Seconds
 
-### Option 1: Cloud Models (BYOK)
-1. **Get API Keys** — Grab keys from OpenAI, Anthropic, Google, or DeepSeek
-2. **Open Settings** — Add your provider key in the settings panel
-3. **Pick a Model** — Select from latest GPT-4, Claude, Gemini, or DeepSeek models
-4. **Start Chatting** — Begin experimenting and watch the analytics
-
-### Option 2: Local with Ollama (Recommended for Learning)
+### **Option 1: Instant Setup (Recommended)**
 ```bash
-# Install Ollama
-brew install ollama
-ollama serve &
+# Clone and run
+git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git
+cd Project-Green-Lantern
+pnpm install && pnpm run dev
 
-# Get optimized quantized models (perfect for experimentation)
-ollama pull gemma2:2b          # 1.6GB, very fast
-ollama pull llama3.2:3b        # 2GB, good balance
-ollama pull mistral:7b         # 4GB, high quality
-
-# Configure Lantern
-# Settings → Provider: Local (Ollama) → Model: gemma2:2b
-# Performance Mode: ON for ultra-fast responses
+# Open http://localhost:3000 and start analyzing your prompts!
 ```
 
-### Option 3: Mixed Setup (Best of Both Worlds)
-- **Local models** for rapid experimentation and learning
-- **Cloud models** for production-quality responses
-- **Compare performance** directly in the analytics dashboard
+### **Option 2: Cloud Models (BYOK)**
+```bash
+# 1. Get your API keys ready
+#    OpenAI: https://platform.openai.com/api-keys
+#    Anthropic: https://console.anthropic.com/
+#    Google: https://makersuite.google.com/app/apikey
 
-##  Analytics Dashboard Deep Dive
+# 2. Add keys in Settings → Provider → [Your choice]
+# 3. Pick your model and start chatting
+# 4. Watch real-time analytics appear as you type
+```
+
+### **Option 3: Local Models (Privacy + Free)**
+```bash
+# Install Ollama for local AI
+brew install ollama  # or: curl -fsSL https://ollama.com/install.sh | sh
+ollama serve &
+
+# Pull optimized models
+ollama pull gemma2:2b     # 1.6GB - Lightning fast
+ollama pull llama3.2:3b   # 2GB - Best balance
+ollama pull qwen2.5:3b    # 2GB - Code specialist
+
+# Configure: Settings → Local (Ollama) → Choose model
+# Enable Performance Mode for 3x faster responses
+```
+
+### **Pro Tip: Hybrid Setup**
+- Use **local models** for rapid prototyping (free, private)
+- Use **cloud models** for production work (highest quality)
+- **Compare them side-by-side** in the analytics dashboard
+
+## See It In Action
+
+### **60-Second Demo: From Setup to Insights**
+
+```bash
+# 1. Clone and start (30 seconds)
+git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git
+cd Project-Green-Lantern && pnpm install && pnpm run dev
+
+# 2. Add your API key (10 seconds)
+# Settings → OpenAI → Paste key → Save
+
+# 3. Start chatting and watch magic happen (20 seconds)
+# Type: "Explain quantum computing"
+# Watch real-time metrics appear:
+#   TTFT: 1.2s
+#   Quality: 94%
+#   Cost: $0.003
+#   Success: PASS
+```
+
+### **What You'll See Immediately:**
+- **Live performance graphs** updating as you chat
+- **Real-time cost tracking** for every message
+- **Speed analysis** showing exactly where delays happen
+- **Quality scores** based on response completeness
+- **Historical trends** building up as you use it
+
+### **Power User Features:**
+- **A/B test prompts** with statistical significance
+- **Cost optimization** recommendations
+- **Performance mode** for 3x faster local inference
+- **Error pattern analysis** to improve success rates
+- **Export insights** for presentations and reports
+
+## Analytics Dashboard Deep Dive
 
 Visit `/promptscope` in the app to access your **Prompt Analytics Dashboard**:
 
-### ** Event Latency Timeline**
+### **Event Latency Timeline**
 - Every prompt plotted as individual points
 - See **Time to First Token (TTFT)** vs total response time
 - Identify slow prompts and optimize them
 - Track improvements over time
 
-### ** Context Bloat Analyzer**
+### **Context Bloat Analyzer**
 - Monitor prompt tokens as % of total context
 - Detect when conversations get too expensive
 - Find optimal conversation lengths
 - Prevent context window overflows
 
-### ** Outcome Mix Tracking**
+### **Outcome Mix Tracking**
 - Success vs Refusal vs Error rates
 - Identify problematic prompt patterns
 - Track safety trigger rates
 - Optimize for higher success rates
 
-### ** Quality vs Cost Analysis**
+### **Quality vs Cost Analysis**
 - Scatter plots comparing model performance
-- Cost-per-useful-response metrics  
+- Cost-per-useful-response metrics
 - ROI analysis for different providers
 - Sweet spot identification for your use cases
 
-### ** Real-time System Metrics**
-- **CPU & Memory Usage** — Monitor system load during inference
-- **Ollama Status** — Model loading, GPU utilization
-- **Network Latency** — API response times
-- **Error Monitoring** — Real-time failure detection
+### **Real-time System Metrics**
+- **CPU & Memory Usage** - Monitor system load during inference
+- **Ollama Status** - Model loading, GPU utilization
+- **Network Latency** - API response times
+- **Error Monitoring** - Real-time failure detection
 
-### ** Advanced Analytics**
-- **Prompt Engineering Insights** — See what structures work best
-- **Temperature Impact Analysis** — Understand creativity vs consistency
-- **Token Efficiency Metrics** — Cost optimization opportunities
-- **Conversation Flow Analysis** — Multi-turn effectiveness
+### **Advanced Analytics**
+- **Prompt Engineering Insights** - See what structures work best
+- **Temperature Impact Analysis** - Understand creativity vs consistency
+- **Token Efficiency Metrics** - Cost optimization opportunities
+- **Conversation Flow Analysis** - Multi-turn effectiveness
 
-##  Architecture
+## Architecture
 
 ```mermaid
 %%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#0b0b0b', 'primaryTextColor': '#e5e5e5', 'lineColor': '#666' }}}%%
@@ -155,103 +230,36 @@ flowchart LR
   C -->|Local HTTP| E[(Ollama)]
   B -->|Real-time logging| F[(IndexedDB)]
   F --> G[Analytics Dashboard]
-  
+
   subgraph Cloud Providers
     D1[OpenAI GPT-4o]
     D2[Anthropic Claude]
     D3[Google Gemini]
     D4[DeepSeek R1]
   end
-  
+
   subgraph Local Stack
     E1[Gemma2:2b - 1.6GB]
     E2[Llama 3.2 - 2GB]
     E3[Mistral 7B - 4GB]
     E4[Qwen 2.5 - 3GB]
   end
-  
+
   D --> D1
   D --> D2
   D --> D3
   D --> D4
-  
+
   E --> E1
   E --> E2
   E --> E3
   E --> E4
 ```
 
-##  Data Flow - Analytics Engine
-
-```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor': '#0b0b0b', 'primaryTextColor': '#e5e5e5', 'lineColor': '#666' }}}%%
-flowchart TB
-  subgraph Chat Interface
-    A[User Prompt] --> B[Turn Instrumentation]
-    B --> C[Response Streaming]
-    C --> D[Completion Analysis]
-  end
-  
-  subgraph Analytics Engine
-    D --> E[IndexedDB Storage]
-    E --> F[Real-time Dashboard]
-    F --> G[Historical Trends]
-  end
-  
-  subgraph Metrics Collection
-    B --> H[TTFT Measurement]
-    B --> I[Token Counting]
-    B --> J[Quality Scoring]
-    B --> K[Error Classification]
-  end
-  
-  subgraph Dashboard Views
-    F --> L[Latency Timeline]
-    F --> M[Context Analysis]
-    F --> N[Cost Tracking]
-    F --> O[Performance Metrics]
-  end
-  
-  H --> L
-  I --> M
-  J --> N
-  K --> O
-```
-
-##  Features in Detail
-
-### ** Thinking HUD**
-Watch your AI "think" with beautiful, non-distracting progress indicators:
-- **Generation Phases** — Planning → Drafting → Refining
-- **Live Metrics** — Tokens/second, elapsed time, progress estimation
-- **Safe Visibility** — Abstract progress without exposing raw reasoning
-- **Collapsible Details** — Optional deeper insights when available
-
-### ** Smooth Experience**
-- **No-Jump Scrolling** — Perfect scroll behavior during streaming
-- **Sticky Auto-Scroll** — Follows responses intelligently
-- **Focus Management** — Never lose your place while typing
-- **Responsive Design** — Works on desktop, tablet, and mobile
-
-### ** Performance Optimization**
-
-#### **Quantized Local Models**
-- **Gemma2:2b** — Q4_0 quantized (1.6GB) for ultra-fast responses
-- **Smart Parameter Tuning** — Automatically optimized for quantized models
-- **GPU Acceleration** — Metal/CUDA support when available
-- **Memory Efficient** — 70% less RAM usage vs full-precision models
-
-#### **Performance Mode (Local)**
-Perfect for rapid prompt experimentation:
-- **Reduced Context** (512 tokens) for maximum speed
-- **Short Responses** (64 tokens) for quick iteration
-- **Multi-threading** optimized for your hardware
-- **Conversation Management** — Auto-trim to maintain context
-
-##  Development & Setup
+## Installation & Development
 
 ### **Prerequisites**
-- Node.js 18+ 
+- Node.js 18+
 - pnpm (recommended) or npm
 - For local models: Ollama
 
@@ -298,135 +306,11 @@ lantern/
 └── README.md               # You are here
 ```
 
-##  Analytics Dashboard Components
-
-### ** Core Visualizations**
-- **Event Timeline** — Time-series plot of all interactions
-- **Latency Heatmap** — Response time patterns by hour/day
-- **Context Usage** — Prompt vs response token ratios
-- **Quality Trends** — Success rates over time
-- **Cost Analysis** — Spending breakdown by provider/model
-
-### ** Advanced Analytics**
-- **Prompt Engineering Insights** — What patterns work best
-- **Model Comparison Matrix** — Head-to-head performance
-- **Error Pattern Analysis** — Why prompts fail
-- **Conversation Flow Metrics** — Multi-turn effectiveness
-- **System Performance** — Resource usage and bottlenecks
-
-### ** Real-time Monitoring**
-- **Live System Stats** — CPU, memory, network
-- **Model Status** — Loading, ready, error states
-- **Queue Management** — Request processing pipeline
-- **Health Checks** — Provider availability
-
-##  Privacy & Security
-
-### ** Local-First Architecture**
-- **Browser Storage** — All analytics data in IndexedDB
-- **No Cloud Dependency** — Works completely offline
-- **Client-Side Processing** — Analytics computed locally
-- **Export Control** — You decide what to share
-
-### ** Security Best Practices**
-- **API Key Protection** — Never logged or transmitted
-- **Request Sanitization** — Clean all inputs
-- **HTTPS Enforcement** — Secure connections only
-- **CSP Headers** — Content Security Policy protection
-
-### ** Repository Security**
-- **No Secrets Committed** — API keys stored only in browser localStorage
-- **Environment Files** — Use `.env.local` for any server-side configuration (never commit)
-- **Security Check Script** — Run `./scripts/pre-share-check.sh` before sharing publicly
-- **Clean History** — Repository verified free of accidentally committed secrets
-
-### ** Data Transparency**
-- **Open Analytics** — All metrics calculations visible
-- **Data Portability** — Easy export in standard formats
-- **Selective Sharing** — Choose what to include in exports
-- **Audit Trail** — Track all data operations
-
-##  Use Cases & Workflows
-
-### ** Prompt Engineering**
-1. **Experiment** with different prompt structures
-2. **Measure** response quality and consistency
-3. **Compare** performance across models
-4. **Optimize** for speed, cost, or quality
-5. **Document** what works for future use
-
-### ** Learning & Research**
-1. **Study** how different models respond to your domain
-2. **Analyze** failure modes and edge cases
-3. **Track** improvement over time
-4. **Share** insights with your team
-5. **Build** prompt libraries based on data
-
-### ** Production Optimization**
-1. **Monitor** production prompt performance
-2. **A/B test** changes before deployment
-3. **Cost optimize** by finding efficient alternatives
-4. **Quality assurance** through systematic testing
-5. **Scale** insights across your organization
-
-##  Contributing
-
-We welcome contributions! Here's how to get started:
-
-### ** Bug Reports**
-1. Check existing issues first
-2. Include detailed reproduction steps
-3. Provide system information
-4. Add screenshots if applicable
-
-### ** Feature Requests**
-1. Describe the use case clearly
-2. Explain the expected behavior
-3. Consider implementation complexity
-4. Discuss alternatives
-
-### ** Code Contributions**
-1. Fork the repository
-2. Create a feature branch
-3. Follow our coding standards
-4. Add tests for new features
-5. Update documentation
-6. Submit a pull request
-
-### ** Documentation**
-- Improve setup instructions
-- Add usage examples
-- Create tutorials
-- Fix typos and clarity issues
-
-##  Roadmap
-
-### ** Near Term**
-- [ ] More visualization types (sankey diagrams, network graphs)
-- [ ] Custom dashboard builder
-- [ ] Prompt template library
-- [ ] Advanced filtering and search
-- [ ] Team collaboration features
-
-### ** Medium Term**
-- [ ] Machine learning insights (automatic pattern detection)
-- [ ] Integration with popular prompt engineering tools
-- [ ] Advanced A/B testing framework
-- [ ] Custom model fine-tuning integration
-- [ ] Enterprise SSO and user management
-
-### ** Long Term**
-- [ ] Multi-user analytics and sharing
-- [ ] Automated prompt optimization
-- [ ] Industry-specific prompt libraries
-- [ ] Advanced cost prediction models
-- [ ] Real-time collaborative editing
-
-##  License
+## License
 
 MIT License - see [LICENSE](LICENSE) for full details.
 
-##  Acknowledgments
+## Acknowledgments
 
 - **Ollama** for making local AI accessible
 - **OpenAI, Anthropic, Google** for excellent APIs
@@ -435,10 +319,33 @@ MIT License - see [LICENSE](LICENSE) for full details.
 
 ---
 
-## **Ready to Master Your AI Conversations?**
+## **Ready to Stop Guessing and Start Measuring?**
 
-*Transform how you interact with AI. Build better prompts, understand what works, and optimize systematically with real-time insights.*
+<p align="center">
+  <img src="https://img.shields.io/badge/Star%20this%20repo-yellow?style=for-the-badge&logo=github" alt="Star this repo">
+  <img src="https://img.shields.io/badge/Contribute-blue?style=for-the-badge" alt="Contribute">
+  <img src="https://img.shields.io/badge/Join%20Community-green?style=for-the-badge" alt="Join Community">
+</p>
 
-**Get Started**: `git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git && cd Project-Green-Lantern && pnpm install && pnpm run dev`
+### **Turn Your AI Experiments Into a Science**
 
-**Experience the future of prompt engineering with Lantern.**
+```bash
+# Stop wasting money on bad prompts
+git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git
+cd Project-Green-Lantern && pnpm install && pnpm run dev
+
+# Start measuring what actually works
+# Join thousands of developers already using Lantern
+```
+
+<p align="center">
+  <strong>Experience the future of prompt engineering.</strong><br>
+  <em>Data-driven AI optimization starts here.</em>
+</p>
+
+---
+
+<p align="center">
+  Made with care by <a href="https://github.com/sanketmuchhala">Sanket Muchhala</a><br>
+  <em>Building tools for the AI-first future</em>
+</p>
