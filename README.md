@@ -52,7 +52,7 @@ Most developers and researchers waste **thousands of dollars** and **countless h
 
 **Turn AI experimentation into a data-driven science.** Get real-time insights that tell you exactly what's working, what's not, and how to optimize everything.
 
-### **Analytics That Actually Matter**
+### Analytics That Actually Matter
 
 ```
 Latency Analysis     → Find your speed bottlenecks in real-time
@@ -63,7 +63,7 @@ A/B Testing         → Compare prompt variations with hard data
 Historical Trends    → Learn from weeks of conversation data
 ```
 
-### **Features That Save You Time & Money**
+### Features That Save You Time & Money
 
 | Feature | Benefit | Impact |
 |---------|---------|---------|
@@ -76,25 +76,25 @@ Historical Trends    → Learn from weeks of conversation data
 
 ## Why Lantern?
 
-### **Thoughtful Design**
+### Thoughtful Design
 - **Minimal, fast UI** — Clean dark interface that gets out of your way
 - **Smooth streaming** — No jarring jumps or scroll issues during responses
 - **Thinking HUD** — See generation progress without cognitive overload
 - **Focus-first** — Everything optimized for deep work and experimentation
 
-### **Universal Compatibility**
+### Universal Compatibility
 - **Cloud + Local** — BYOK for OpenAI/Anthropic/Gemini/DeepSeek OR run Ollama locally
 - **Quantized Models** — Optimized for Gemma2:2b (1.6GB), Llama, Mistral on Apple Silicon
 - **Performance Mode** — Ultra-fast responses for rapid iteration
 - **Auto-detection** — Smart provider selection based on model names
 
-### **Data-Driven Insights**
+### Data-Driven Insights
 - **100% Private** — All analytics data stays in your browser (IndexedDB)
 - **Real-time Metrics** — Live charts update as you chat
 - **Historical Analysis** — Track improvements over weeks and months
 - **Export Capabilities** — Save insights for reports and presentations
 
-### **Privacy & Security**
+### Privacy & Security
 - **Local-first** — No data ever leaves your machine
 - **BYOK principle** — You control your API keys and data
 - **Zero telemetry** — We never see your prompts or responses
@@ -102,7 +102,7 @@ Historical Trends    → Learn from weeks of conversation data
 
 ## Quick Start - Running in 60 Seconds
 
-### **Option 1: Instant Setup (Recommended)**
+### Option 1: Instant Setup (Recommended)
 ```bash
 # Clone and run
 git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git
@@ -112,7 +112,7 @@ pnpm install && pnpm run dev
 # Open http://localhost:3000 and start analyzing your prompts!
 ```
 
-### **Option 2: Cloud Models (BYOK)**
+### Option 2: Cloud Models (BYOK)
 ```bash
 # 1. Get your API keys ready
 #    OpenAI: https://platform.openai.com/api-keys
@@ -124,7 +124,7 @@ pnpm install && pnpm run dev
 # 4. Watch real-time analytics appear as you type
 ```
 
-### **Option 3: Local Models (Privacy + Free)**
+### Option 3: Local Models (Privacy + Free)
 ```bash
 # Install Ollama for local AI
 brew install ollama  # or: curl -fsSL https://ollama.com/install.sh | sh
@@ -139,14 +139,14 @@ ollama pull qwen2.5:3b    # 2GB - Code specialist
 # Enable Performance Mode for 3x faster responses
 ```
 
-### **Pro Tip: Hybrid Setup**
+### Pro Tip: Hybrid Setup
 - Use **local models** for rapid prototyping (free, private)
 - Use **cloud models** for production work (highest quality)
 - **Compare them side-by-side** in the analytics dashboard
 
 ## See It In Action
 
-### **60-Second Demo: From Setup to Insights**
+### 60-Second Demo: From Setup to Insights
 
 ```bash
 # 1. Clone and start (30 seconds)
@@ -165,14 +165,14 @@ cd Project-Green-Lantern && pnpm install && pnpm run dev
 #   Success: PASS
 ```
 
-### **What You'll See Immediately:**
+### What You'll See Immediately:
 - **Live performance graphs** updating as you chat
 - **Real-time cost tracking** for every message
 - **Speed analysis** showing exactly where delays happen
 - **Quality scores** based on response completeness
 - **Historical trends** building up as you use it
 
-### **Power User Features:**
+### Power User Features:
 - **A/B test prompts** with statistical significance
 - **Cost optimization** recommendations
 - **Performance mode** for 3x faster local inference
@@ -183,37 +183,37 @@ cd Project-Green-Lantern && pnpm install && pnpm run dev
 
 Visit `/promptscope` in the app to access your **Prompt Analytics Dashboard**:
 
-### **Event Latency Timeline**
+### Event Latency Timeline
 - Every prompt plotted as individual points
 - See **Time to First Token (TTFT)** vs total response time
 - Identify slow prompts and optimize them
 - Track improvements over time
 
-### **Context Bloat Analyzer**
+### Context Bloat Analyzer
 - Monitor prompt tokens as % of total context
 - Detect when conversations get too expensive
 - Find optimal conversation lengths
 - Prevent context window overflows
 
-### **Outcome Mix Tracking**
+### Outcome Mix Tracking
 - Success vs Refusal vs Error rates
 - Identify problematic prompt patterns
 - Track safety trigger rates
 - Optimize for higher success rates
 
-### **Quality vs Cost Analysis**
+### Quality vs Cost Analysis
 - Scatter plots comparing model performance
 - Cost-per-useful-response metrics
 - ROI analysis for different providers
 - Sweet spot identification for your use cases
 
-### **Real-time System Metrics**
+### Real-time System Metrics
 - **CPU & Memory Usage** - Monitor system load during inference
 - **Ollama Status** - Model loading, GPU utilization
 - **Network Latency** - API response times
 - **Error Monitoring** - Real-time failure detection
 
-### **Advanced Analytics**
+### Advanced Analytics
 - **Prompt Engineering Insights** - See what structures work best
 - **Temperature Impact Analysis** - Understand creativity vs consistency
 - **Token Efficiency Metrics** - Cost optimization opportunities
@@ -258,12 +258,12 @@ flowchart LR
 
 ## Installation & Development
 
-### **Prerequisites**
+### Prerequisites
 - Node.js 18+
 - pnpm (recommended) or npm
 - For local models: Ollama
 
-### **Installation**
+### Installation
 ```bash
 # Clone the repository
 git clone https://github.com/sanketmuchhala/Project-Green-Lantern.git
@@ -282,7 +282,7 @@ pnpm run build
 pnpm test
 ```
 
-### **Project Structure**
+### Project Structure
 ```
 lantern/
 ├── packages/
@@ -319,7 +319,7 @@ MIT License - see [LICENSE](LICENSE) for full details.
 
 ---
 
-## **Ready to Stop Guessing and Start Measuring?**
+## Ready to Stop Guessing and Start Measuring?
 
 <p align="center">
   <img src="https://img.shields.io/badge/Star%20this%20repo-yellow?style=for-the-badge&logo=github" alt="Star this repo">
@@ -327,7 +327,7 @@ MIT License - see [LICENSE](LICENSE) for full details.
   <img src="https://img.shields.io/badge/Join%20Community-green?style=for-the-badge" alt="Join Community">
 </p>
 
-### **Turn Your AI Experiments Into a Science**
+### Turn Your AI Experiments Into a Science
 
 ```bash
 # Stop wasting money on bad prompts
